@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@hoprnet/hopr-utils@^1.57.0-next.13":
-  version "1.57.0-next.13"
-  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.57.0-next.13.tgz#358ad56ef5691cd4fb3b93ac75966fd5f288aeb9"
-  integrity sha512-nWPZEa6UGWiG1JAaOxDnD1959e05a5GaiCCHX0U48ITK38+G1ym4l6QrLQ6eY2zX1LzP1MWD8fu+l/o3Ke6ZOQ==
+"@hoprnet/hopr-utils@^1.57.0-next.18":
+  version "1.57.0-next.18"
+  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.57.0-next.18.tgz#8567064b5d480b106a07d075b1bf89344c985ef5"
+  integrity sha512-M8CXzKYbPhQB6wSN9yGCEySFju7HKTyVu0ypsbbMc+hOD142o4kyIF3kWdqQN9cKRpnLdUupPNLvAuuZ5TCzAQ==
   dependencies:
     bignumber.js "^9.0.0"
     libp2p-crypto "0.18.0"
