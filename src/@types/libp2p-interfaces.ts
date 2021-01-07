@@ -52,7 +52,7 @@ declare module 'libp2p-interfaces' {
     error: (err?: any) => void
   }
 
-  interface Listener extends EventEmitter {
+  export interface Listener extends EventEmitter {
     on<U extends keyof ListenerEvents>(event: U, listener: ListenerEvents[U]): this
     emit<U extends keyof ListenerEvents>(event: U, ...args: Parameters<ListenerEvents[U]>): boolean
 

@@ -1,3 +1,5 @@
+/// <reference path="./@types/libp2p-interfaces.ts" />
+
 import net, { AddressInfo, Socket as TCPSocket } from 'net'
 import dgram, { RemoteInfo } from 'dgram'
 
