@@ -892,9 +892,9 @@ log-symbols@4.0.0:
     chalk "^4.0.0"
 
 mafmt@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/mafmt/-/mafmt-8.0.1.tgz#2c2ba61a84a66e58552100f163caef1a1267b276"
-  integrity sha512-A2z9CQp8C9koExHLdYs2tGzwYgCWuEfp+M+QNKe+qQif+YwYRq0+wJ9019SP7Go9TLx0I6+ylx01RqIxZ8RuHw==
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/mafmt/-/mafmt-8.0.3.tgz#4860427362fbe6406e52c632065b96c39f7aa0d7"
+  integrity sha512-/uItgEL0nSUhu8LfO5sqkrSUWxtTvOP/+jMLePl5Jjw2p+npjHLmNJvGZTevMl+wl4taKD7kZoohgLTEz/qubg==
   dependencies:
     multiaddr "^8.0.0"
 
