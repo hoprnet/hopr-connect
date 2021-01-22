@@ -10,9 +10,9 @@
     encoding "^0.1.13"
 
 "@hoprnet/hopr-utils@^1.62":
-  version "1.62.11"
-  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.62.11.tgz#941b3cadd283d408d23ecad916a845f94fbd8795"
-  integrity sha512-PfZ4YBjDcCZes8gOE/5tc+UEM3rdPhlBjP83mgnFUso1ZI0nxG2HH04Ed8vSz3eKHzBbMH1pyQy9m24WpihLyQ==
+  version "1.62.15"
+  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.62.15.tgz#67fc83f18fe6bccce3f25dc5fb3f0e9deee9c819"
+  integrity sha512-q1zdv2D4JdrxnGpWt70tKXkqsmlM/11amrZfIA9F1kHmK1oNmJ440S+oKeUjjdCXjE3jZk4mM6BIk4etL4kINg==
   dependencies:
     bignumber.js "^9.0.0"
     libp2p-crypto "0.18.0"
@@ -1256,6 +1256,40 @@ libp2p-interfaces@^0.5.1:
     libp2p-tcp "^0.15.0"
     multiaddr "^8.0.0"
     multibase "^3.0.0"
+    p-defer "^3.0.0"
+    p-limit "^2.3.0"
+    p-wait-for "^3.1.0"
+    peer-id "^0.14.0"
+    protons "^2.0.0"
+    sinon "^9.0.2"
+    streaming-iterables "^5.0.2"
+    uint8arrays "^1.1.0"
+
+libp2p-interfaces@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/libp2p-interfaces/-/libp2p-interfaces-0.8.2.tgz#57ecc410d2971987a80bf3c15949f96e1bc7f558"
+  integrity sha512-jiE7ms1Hl64zQvCzu+fFrNygi+9LEmMLjeiUBeaiw55HL2vtntRG/PEBDWeh4e2HisVtfLXfRDqnouMMkcBt+Q==
+  dependencies:
+    "@types/bl" "^2.1.0"
+    abort-controller "^3.0.0"
+    abortable-iterator "^3.0.0"
+    chai "^4.2.0"
+    chai-checkmark "^1.0.1"
+    debug "^4.1.1"
+    delay "^4.3.0"
+    detect-node "^2.0.4"
+    dirty-chai "^2.0.1"
+    err-code "^2.0.0"
+    it-goodbye "^2.0.1"
+    it-length-prefixed "^3.1.0"
+    it-pair "^1.0.0"
+    it-pipe "^1.1.0"
+    it-pushable "^1.4.0"
+    libp2p-crypto "^0.18.0"
+    libp2p-tcp "^0.15.0"
+    multiaddr "^8.0.0"
+    multibase "^3.0.0"
+    multihashes "^3.0.1"
     p-defer "^3.0.0"
     p-limit "^2.3.0"
     p-wait-for "^3.1.0"
