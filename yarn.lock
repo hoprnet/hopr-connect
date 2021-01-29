@@ -10,9 +10,9 @@
     encoding "^0.1.13"
 
 "@hoprnet/hopr-utils@^1.67.0-next.5":
-  version "1.67.0-next.5"
-  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.67.0-next.5.tgz#69a1b44b9148f62686952a1ea065ed4043268cf9"
-  integrity sha512-aOYR9Sd5czxExholjZvu2sIeK6PBTwxcEd+mr7DC4kif2j12Ko5WSvgz8Gkh1jPYqTowyNyOOi8leLr0I7G0wQ==
+  version "1.67.3"
+  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.67.3.tgz#fdbb7ecb39cbe198451a0521b4c77d1e32029d43"
+  integrity sha512-+lsLJGqOzeyGvSYEEswC3VcVz1LIRBFCbkV2++DK7ki+lDZAGo2x3kYxycNXVQo6pFA88HgwoZ9amjPB0JMBJQ==
   dependencies:
     bignumber.js "^9.0.0"
     libp2p-crypto "0.18.0"
@@ -1648,16 +1648,7 @@ multicodec@^2.0.0, multicodec@^2.1.0:
     uint8arrays "1.1.0"
     varint "^6.0.0"
 
-multihashes@^3.0.1, multihashes@~3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/multihashes/-/multihashes-3.1.0.tgz#aada18fc55169ae044c3455e2264024bd00f5690"
-  integrity sha512-snU+w6aZy5bTrrqIHW3wkT0MfHmxcpOsaVNJt0NzUnseksbjFDVUZjSmhDMAVOVnIdLMS7xHjo55pKlBIGmC3g==
-  dependencies:
-    multibase "^3.1.0"
-    uint8arrays "^1.0.0"
-    varint "^6.0.0"
-
-multihashes@^3.1.0, multihashes@^3.1.1:
+multihashes@^3.0.1, multihashes@^3.1.0, multihashes@^3.1.1, multihashes@~3.1.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/multihashes/-/multihashes-3.1.2.tgz#ffa5e50497aceb7911f7b4a3b6cada9b9730edfc"
   integrity sha512-AP4IoV/YzkNrfbQKZE3OMPibrmy350OmCd6cJkwyM8oExaXIlOY4UnOOVSQtAEuq/LR01XfXKCESidzZvSwHCQ==
@@ -2008,7 +1999,7 @@ pathval@^1.1.0:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.0.tgz#b942e6d4bde653005ef6b71361def8727d0645e0"
   integrity sha1-uULm1L3mUwBe9rcTYd74cn0GReA=
 
-peer-id@0.14.3, peer-id@~0.14.3:
+peer-id@0.14.3, peer-id@^0.14.0, peer-id@^0.14.2, peer-id@~0.14.3:
   version "0.14.3"
   resolved "https://registry.yarnpkg.com/peer-id/-/peer-id-0.14.3.tgz#e8fe27fa345e59e9afb41be6bf4aee25146adf0a"
   integrity sha512-3ug6gDFWPuzihjjhMC0G/EEyaJaM9JCKPZqvPhwnsbhIUbutbS/MMF8Mb+TdDE1IksOXgCKNmohSZBJ/gFijOg==
@@ -2020,19 +2011,6 @@ peer-id@0.14.3, peer-id@~0.14.3:
     multihashes "^3.1.1"
     protons "^2.0.0"
     uint8arrays "^2.0.5"
-
-peer-id@^0.14.0, peer-id@^0.14.2:
-  version "0.14.2"
-  resolved "https://registry.yarnpkg.com/peer-id/-/peer-id-0.14.2.tgz#3ddd752092a54f06b750b5e67d0db98fb4ee40bc"
-  integrity sha512-8iZWaUT7jq8rVyyFZUHYUwFCvhoI5B1Q2MAJjUF9MTf4TsNRQPnod4Mycf2jrK/uXFBN5/9K1NhPoieFyz/PRw==
-  dependencies:
-    cids "^1.0.0"
-    class-is "^1.1.0"
-    libp2p-crypto "^0.18.0"
-    minimist "^1.2.5"
-    multihashes "^3.0.1"
-    protons "^2.0.0"
-    uint8arrays "^1.1.0"
 
 pem-jwk@^2.0.0:
   version "2.0.0"
