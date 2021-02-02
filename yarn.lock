@@ -9,10 +9,10 @@
   dependencies:
     encoding "^0.1.13"
 
-"@hoprnet/hopr-utils@1.68.0-next.9":
-  version "1.68.0-next.9"
-  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.68.0-next.9.tgz#aaff888a69eff372a34eee11f2a857279894e1c9"
-  integrity sha512-R3jvqZplrda6QyYHi8oP82WdMNBU1cWTkYScMKGRBWEGVn/2n5sirgWI+S+QnKG6/QxI5o6+eJelJ5EPmCkBAA==
+"@hoprnet/hopr-utils@1.68.3":
+  version "1.68.3"
+  resolved "https://registry.yarnpkg.com/@hoprnet/hopr-utils/-/hopr-utils-1.68.3.tgz#58128a0dfef4b0d1885ffb8f95953f7dc519c322"
+  integrity sha512-HaMgZlWI7Nojw3G99dMIM3F0gCUzsSbBqgERV1eP0HCxhRSPUdKYHPFIcJIaenEWoxcdTLiRR0zpSrYpT5/TDA==
   dependencies:
     abort-controller "~3.0.0"
     bignumber.js "^9.0.0"
