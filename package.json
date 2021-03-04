@@ -32,7 +32,7 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "@hoprnet/hopr-utils": "1.69.3",
+    "@hoprnet/hopr-utils": "1.70.10",
     "abortable-iterator": "^3.0.0",
     "bl": "^4.1",
     "debug": "^4.3.1",
