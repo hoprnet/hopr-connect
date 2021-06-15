@@ -1,4 +1,4 @@
-import Multiaddr from 'multiaddr'
+import { Multiaddr } from 'multiaddr'
 
 // @ts-ignore
 const { name, version } = require('../package.json')

@@ -8,10 +8,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "sourceMap": true,
-    "esModuleInterop": true,
     "noImplicitReturns": true,
     "strict": true,
     "outDir": "lib",
+    "allowSyntheticDefaultImports":true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*.ts"]
