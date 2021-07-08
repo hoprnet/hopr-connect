@@ -5,7 +5,7 @@ $(return >/dev/null 2>&1)
 test "$?" -eq "0" || { echo "This script should only be sourced." >&2; exit 1; }
 
 # exit on errors, undefined variables, ensure errors in pipes are not hidden
-set -Eeuo pipefail
+set -Eeu
 
 # $1=version string, semver
 function get_version_maj_min() {
@@ -55,9 +55,8 @@ function wait_for_regex_in_file() {
     declare regex=${2}    
 
     log "Waiting for ${regex} in ${file}..."
-    grep -m 1 "${regex}" <(tail -f "${file}")    
+    tail -f "${file}" | grep -m 1 "${regex}"
 }
-
 
 # $1 = port to wait for
 # $2 = optional: file to tail for debug info
