@@ -54,8 +54,21 @@ function wait_for_regex_in_file() {
     declare file=${1}
     declare regex=${2}    
 
-    log "Waiting for ${regex} in ${file}..."
-    tail -f "${file}" | grep -m 1 "${regex}"
+    log "Waiting for ${regex} in ${file}..."    
+    
+    declare delay=0.1
+
+    while true; do
+      sleep ${delay}
+      set +e
+      grep -q "${regex}" "${file}"
+      declare grep_exit_code="$?"      
+      set -e
+      log "${grep_exit_code}"
+      if [[ "${grep_exit_code}" == 0 ]]; then
+        exit 0
+      fi
+    done
 }
 
 # $1 = port to wait for
