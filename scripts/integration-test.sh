@@ -5,7 +5,7 @@ $(return >/dev/null 2>&1)
 test "$?" -eq "0" && { echo "This script should only be executed." >&2; exit 1; }
 
 # exit on errors, undefined variables, ensure errors in pipes are not hidden
-set -Eeuo pipefail
+set -Eeu
 
 # set log id and use shared log function for readable logs
 declare mydir
@@ -44,7 +44,7 @@ function cleanup {
 
   exit $EXIT_CODE
 }
-# trap cleanup SIGINT SIGTERM ERR EXIT
+trap cleanup SIGINT SIGTERM ERR EXIT
 
 function start_node() {
     declare filename=${1}
@@ -88,23 +88,14 @@ ensure_port_is_free 9090
 ensure_port_is_free 9091
 ensure_port_is_free 9092
 
-log 'Test started'
+log "Test started"
 
 # run nodes
 server_pid=$(start_node examples/server.ts "${server_log}")
 client1_pid=$(start_node examples/client.ts ${client1_log} 1)
 client0_pid=$(start_node examples/client.ts ${client0_log} 0)
 
-function wait_for_regex_in_file() {    
-    declare file=${1}
-    declare regex=${2}    
-
-    log "Waiting for ${regex} in ${file}..."
-    grep -m 1 "${regex}" <(tail -f "${file}")
-    log "Found!"
-}
-
 wait_for_regex_in_file ${client1_log} "Received message <test>"
 wait_for_regex_in_file ${client0_log} "Received <Echoing <test>>"
 
-log 'Test succesful'
+log "Test succesful"

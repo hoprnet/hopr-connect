@@ -48,6 +48,17 @@ function wait_for_http_port() {
   wait_for_port "${port}" "${log_file}" "${delay}" "${max_wait}" "${cmd}"
 }
 
+# $1 = file to monitor
+# $2 = regexp to look for
+function wait_for_regex_in_file() {    
+    declare file=${1}
+    declare regex=${2}    
+
+    log "Waiting for ${regex} in ${file}..."
+    grep -m 1 "${regex}" <(tail -f "${file}")    
+}
+
+
 # $1 = port to wait for
 # $2 = optional: file to tail for debug info
 # $3 = optional: delay between checks in seconds, defaults to 2s
