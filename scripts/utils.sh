@@ -29,7 +29,7 @@ function ensure_port_is_free() {
 
   if lsof -i ":${port}" -s TCP:LISTEN; then
     log "Port is not free $1"
-    log "Process: $(lsof -i ":${port}" -s TCP:LISTEN || :)"
+    log "Process: $(lsof -t -i ":${port}" -s TCP:LISTEN || :)"
     exit 1
   fi
 }

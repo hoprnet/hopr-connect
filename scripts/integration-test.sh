@@ -19,6 +19,17 @@ usage() {
   msg
 }
 
+# setup paths
+declare tmp="/tmp"
+declare server_log="${tmp}/hopr-connect-server.log"
+declare server_pid
+
+declare client0_log="${tmp}/hopr-connect-client0.log"
+declare client0_pid
+
+declare client1_log="${tmp}/hopr-connect-client1.log"
+declare client1_pid
+
 function cleanup {
   local EXIT_CODE=$?
 
@@ -33,7 +44,7 @@ function cleanup {
 
   exit $EXIT_CODE
 }
-trap cleanup SIGINT SIGTERM ERR EXIT
+# trap cleanup SIGINT SIGTERM ERR EXIT
 
 function start_node() {
     declare filename=${1}
@@ -72,16 +83,10 @@ if [[ "${yarn_version_parsed[0]}" != "2" ]]; then
     exit 1
 fi
 
-# setup paths
-declare tmp="/tmp"
-declare server_log="${tmp}/hopr-connect-server.log"
-declare server_pid
-
-declare client0_log="${tmp}/hopr-connect-client0.log"
-declare client0_pid
-
-declare client1_log="${tmp}/hopr-connect-client1.log"
-declare client1_pid
+# check ports are free
+ensure_port_is_free 9090
+ensure_port_is_free 9091
+ensure_port_is_free 9092
 
 # run nodes
 server_pid=$(start_node examples/server.ts "${server_log}")
@@ -90,10 +95,10 @@ client0_pid=$(start_node examples/client.ts ${client0_log} 0)
 
 function wait_for_regex_in_file() {    
     declare file=${1}
-    declare regex=${2}
+    declare regex=${2}    
 
     log "Waiting for ${regex} in ${file}..."
-    ( tail -f -n0 "${file}" & ) | grep -q "${regex}"
+    grep -m 1 "${regex}" <(tail -f "${file}")
     log "Found!"
 }
 
