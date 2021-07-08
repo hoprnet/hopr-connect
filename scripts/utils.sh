@@ -3,10 +3,7 @@
 # prevent execution of this script, only allow execution
 $(return >/dev/null 2>&1)
 test "$?" -eq "0" || { echo "This script should only be sourced." >&2; exit 1; }
-
-# exit on errors, undefined variables, ensure errors in pipes are not hidden
-set -Eeu
-
+    
 # $1=version string, semver
 function get_version_maj_min() {
   echo $(get_version_maj_min_pat $1 | cut -d. -f1,2)
@@ -53,20 +50,19 @@ function wait_for_http_port() {
 function wait_for_regex_in_file() {    
     declare file=${1}
     declare regex=${2}    
-
+ 
     log "Waiting for ${regex} in ${file}..."    
     
     declare delay=0.1
+    set +eE
 
     while true; do
       sleep ${delay}
-      set +e
+      set +eE
       grep -q "${regex}" "${file}"
-      declare grep_exit_code="$?"      
-      set -e
-      log "${grep_exit_code}"
+      declare grep_exit_code="$?"            
       if [[ "${grep_exit_code}" == 0 ]]; then
-        exit 0
+        return 0
       fi
     done
 }

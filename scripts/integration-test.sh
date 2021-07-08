@@ -3,10 +3,7 @@
 # prevent souring of this script, only allow execution
 $(return >/dev/null 2>&1)
 test "$?" -eq "0" && { echo "This script should only be executed." >&2; exit 1; }
-
-# exit on errors, undefined variables, ensure errors in pipes are not hidden
-set -Eeu
-
+          
 # set log id and use shared log function for readable logs
 declare mydir
 mydir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -93,14 +90,14 @@ if [[ "${yarn_version_parsed[0]}" != "2" ]]; then
     exit 1
 fi
 
+free_ports
+
 # check ports are free
 ensure_port_is_free 9090
 ensure_port_is_free 9091
 ensure_port_is_free 9092
 
 log "Test started"
-
-free_ports
 
 # remove logs
 rm -Rf "${server_log}"
