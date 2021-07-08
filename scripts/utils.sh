@@ -63,8 +63,7 @@ function wait_for_regex_in_file() {
       declare grep_exit_code="$?"            
       if [[ "${grep_exit_code}" == 0 ]]; then
         return 0
-      fi
-      log "still waiting"
+      fi      
     done
 }
 
