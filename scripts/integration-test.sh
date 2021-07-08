@@ -87,3 +87,15 @@ declare client1_pid
 server_pid=$(start_node examples/server.ts "${server_log}")
 client1_pid=$(start_node examples/client.ts ${client1_log} 1)
 client0_pid=$(start_node examples/client.ts ${client0_log} 0)
+
+function wait_for_regex_in_file() {    
+    declare file=${1}
+    declare regex=${2}
+
+    log "Waiting for ${regex} in ${file}..."
+    ( tail -f -n0 "${file}" & ) | grep -q "${regex}"
+    log "Found!"
+}
+
+wait_for_regex_in_file ${client1_log} "Received message <test>"
+wait_for_regex_in_file ${client0_log} "Received <Echoing <test>>"
