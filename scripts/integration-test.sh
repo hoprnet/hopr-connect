@@ -88,6 +88,8 @@ ensure_port_is_free 9090
 ensure_port_is_free 9091
 ensure_port_is_free 9092
 
+log 'Test started'
+
 # run nodes
 server_pid=$(start_node examples/server.ts "${server_log}")
 client1_pid=$(start_node examples/client.ts ${client1_log} 1)
@@ -104,3 +106,5 @@ function wait_for_regex_in_file() {
 
 wait_for_regex_in_file ${client1_log} "Received message <test>"
 wait_for_regex_in_file ${client0_log} "Received <Echoing <test>>"
+
+log 'Test succesful'
