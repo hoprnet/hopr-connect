@@ -30,6 +30,14 @@ declare client0_pid
 declare client1_log="${tmp}/hopr-connect-client1.log"
 declare client1_pid
 
+function free_ports {
+    for port in 9090 9091 9092; do
+        if lsof -i ":${port}" -s TCP:LISTEN; then
+        lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
+        fi
+    done
+}
+
 function cleanup {
   local EXIT_CODE=$?
 
@@ -42,11 +50,7 @@ function cleanup {
     log "killed ${pid}"    
   done
 
-  for port in 9090 9091 9092; do
-    if lsof -i ":${port}" -s TCP:LISTEN; then
-      lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
-    fi
-  done
+  free_ports
 
   exit $EXIT_CODE
 }
@@ -95,6 +99,13 @@ ensure_port_is_free 9091
 ensure_port_is_free 9092
 
 log "Test started"
+
+free_ports
+
+# remove logs
+rm -Rf "${server_log}"
+rm -Rf "${client1_log}"
+rm -Rf "${client0_log}"
 
 # run nodes
 server_pid=$(start_node examples/server.ts "${server_log}")
