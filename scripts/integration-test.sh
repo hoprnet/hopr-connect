@@ -27,13 +27,28 @@ function cleanup {
   # Cleaning up everything
   log "Stopping up processes"
   for pid in ${server_pid}; do
-    log "${pid}"
     kill -9 ${pid}
+    log "killed ${pid}"    
   done
 
   exit $EXIT_CODE
 }
 trap cleanup SIGINT SIGTERM ERR EXIT
+
+function start_node() {
+    declare filename=${1}
+    declare log_file=${2}
+
+    DEBUG=hopr-connect*,simple-peer \
+    yarn dlx \
+    ts-node \
+        "${filename}" \
+        > "${log_file}" \
+        2>&1 &
+    declare pid=$!
+    log "${filename} started with PID ${pid}"
+    echo ${pid}
+}
 
 # return early with help info when requested
 ([ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]) && { usage; exit 0; }
@@ -62,12 +77,4 @@ declare server_log="${tmp}/hopr-connect-server.log"
 
 log "Running server..."
 
-DEBUG=hopr-connect*,simple-peer \
-yarn dlx \
-ts-node \
-    examples/server.ts \
-    > "${server_log}" \
-    2>&1 &
-
-server_pid=$!
-log "Server started with PID ${server_pid}"
+server_pid=$(start_node examples/server.ts ${server_log})
