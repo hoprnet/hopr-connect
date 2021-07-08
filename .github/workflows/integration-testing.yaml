@@ -50,9 +50,7 @@ jobs:
 
       - name: Build
         run: |
-          yarn -v
           yarn set version berry
-          yarn -v
           yarn          
       
       - name: Test
