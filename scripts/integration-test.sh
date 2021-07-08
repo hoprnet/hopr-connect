@@ -42,6 +42,12 @@ function cleanup {
     log "killed ${pid}"    
   done
 
+  for port in 9090 9091 9092; do
+    if lsof -i ":${port}" -s TCP:LISTEN; then
+      lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
+    fi
+  done
+
   exit $EXIT_CODE
 }
 trap cleanup SIGINT SIGTERM ERR EXIT
