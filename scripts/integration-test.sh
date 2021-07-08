@@ -26,7 +26,7 @@ function cleanup {
 
   # Cleaning up everything
   log "Stopping up processes"
-  for pid in ${server_pid}; do
+  for pid in ${server_pid} ${client0_pid} ${client1_pid}; do
     kill -9 ${pid}
     log "killed ${pid}"    
   done
@@ -38,15 +38,17 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 function start_node() {
     declare filename=${1}
     declare log_file=${2}
+    declare rest_args=${@:3}
 
     DEBUG=hopr-connect*,simple-peer \
     yarn dlx \
     ts-node \
         "${filename}" \
         > "${log_file}" \
+        ${rest_args} \
         2>&1 &
     declare pid=$!
-    log "${filename} started with PID ${pid}"
+    log "${filename} ${rest_args} started with PID ${pid}"
     echo ${pid}
 }
 
@@ -72,9 +74,16 @@ fi
 
 # setup paths
 declare tmp="/tmp"
-declare server_pid
 declare server_log="${tmp}/hopr-connect-server.log"
+declare server_pid
 
-log "Running server..."
+declare client0_log="${tmp}/hopr-connect-client0.log"
+declare client0_pid
 
-server_pid=$(start_node examples/server.ts ${server_log})
+declare client1_log="${tmp}/hopr-connect-client1.log"
+declare client1_pid
+
+# run nodes
+server_pid=$(start_node examples/server.ts "${server_log}")
+client1_pid=$(start_node examples/client.ts ${client1_log} 1)
+client0_pid=$(start_node examples/client.ts ${client0_log} 0)
