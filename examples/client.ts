@@ -9,18 +9,24 @@ const MPLEX = require('libp2p-mplex')
 import { HoprConnect } from '../src'
 import { Multiaddr } from 'multiaddr'
 import PeerId from 'peer-id'
-import { Bob, Charly, getIdentity } from './identities'
+import { getIdentity } from './identities'
 import pipe from 'it-pipe'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
 async function main() {
   const clientPort = process.argv[3]
-  
-  const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/9092/p2p/${await PeerId.createFromPrivKey(Charly)}`)
+  const relayPort = process.argv[5]
+  const relayPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[6]))
+  let counterPartyPeerId
+  if(process.argv[7]) {
+    counterPartyPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[7]))
+  }
+
+  const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${relayPort}/p2p/${relayPeerId}`)
 
   const clientPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[4]))
-
+  
   const node = await libp2p.create({
     peerId: clientPeerId,
     addresses: {
@@ -80,43 +86,39 @@ async function main() {
   //@ts-ignore
   let conn: Handler
 
-  switch (process.argv[2]) {
-    case '0':
+  if(counterPartyPeerId)
       try {
         conn = await node.dialProtocol(
           new Multiaddr(
-            `/p2p/${await PeerId.createFromPrivKey(Charly)}/p2p-circuit/p2p/${await PeerId.createFromPrivKey(Bob)}`
+            `/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId}`
           ),
           TEST_PROTOCOL
+        )      
+        await pipe(
+          // prettier-ignore
+          // async function * () {
+          //   let i = 0
+          //   while(true) {
+          //     yield new TextEncoder().encode(`test ${i}`)
+
+          //     await new Promise(resolve => setTimeout(resolve, 100))
+          //     i++
+          //   }
+          // }(),
+          [new TextEncoder().encode(`test`)],
+          conn.stream,
+          async (source: Stream['source']) => {
+            for await (const msg of source) {
+              const decoded = new TextDecoder().decode(msg.slice())
+
+              console.log(`Received <${decoded}>`)
+            }
+          }
         )
       } catch (err) {
         console.log(err)
         return
       }
-
-      await pipe(
-        // prettier-ignore
-        // async function * () {
-        //   let i = 0
-        //   while(true) {
-        //     yield new TextEncoder().encode(`test ${i}`)
-
-        //     await new Promise(resolve => setTimeout(resolve, 100))
-        //     i++
-        //   }
-        // }(),
-        [new TextEncoder().encode(`test`)],
-        conn.stream,
-        async (source: Stream['source']) => {
-          for await (const msg of source) {
-            const decoded = new TextDecoder().decode(msg.slice())
-
-            console.log(`Received <${decoded}>`)
-          }
-        }
-      )
-
-      break
     // case '1':
     //   conn = await node.dialProtocol(
     //     Multiaddr(`/ip4/127.0.0.1/tcp/9090/p2p/${await PeerId.createFromPrivKey(Alice)}`),
@@ -127,9 +129,9 @@ async function main() {
     // default:
     //   console.log(`Invalid CLI options. Either run with '0' or '1'. Got ${process.argv[2]}`)
     //   process.exit()
+    console.log('running')
   }
 
-  console.log('running')
-}
+  
 
 main()
