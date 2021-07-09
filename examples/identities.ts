@@ -24,13 +24,19 @@ const Ed = Uint8Array.from([
 ])
 
 export function getIdentity(name: string): Uint8Array {
-  switch(name) {
-    case 'alice': return Alice
-    case 'bob': return Bob
-    case 'charly': return Charly
-    case 'dave': return Dave
-    case 'ed': return Ed
-    default: throw new Error(`unknown identity ${name}`)
+  switch (name) {
+    case 'alice':
+      return Alice
+    case 'bob':
+      return Bob
+    case 'charly':
+      return Charly
+    case 'dave':
+      return Dave
+    case 'ed':
+      return Ed
+    default:
+      throw new Error(`unknown identity ${name}`)
   }
 }
 
