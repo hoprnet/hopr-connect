@@ -96,16 +96,6 @@ async function main() {
         TEST_PROTOCOL
       )
       await pipe(
-        // prettier-ignore
-        // async function * () {
-        //   let i = 0
-        //   while(true) {
-        //     yield new TextEncoder().encode(`test ${i}`)
-
-        //     await new Promise(resolve => setTimeout(resolve, 100))
-        //     i++
-        //   }
-        // }(),
         [new TextEncoder().encode(`test`)],
         conn.stream,
         async (source: Stream['source']) => {
