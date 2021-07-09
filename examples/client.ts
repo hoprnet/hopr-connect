@@ -9,7 +9,7 @@ const MPLEX = require('libp2p-mplex')
 import { HoprConnect } from '../src'
 import { Multiaddr } from 'multiaddr'
 import PeerId from 'peer-id'
-import { Alice, Bob, Charly } from './identities'
+import { Bob, Charly, getIdentity } from './identities'
 import pipe from 'it-pipe'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
@@ -19,23 +19,12 @@ async function main() {
   
   const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/9092/p2p/${await PeerId.createFromPrivKey(Charly)}`)
 
-  let peerId: PeerId
-  switch (process.argv[2]) {
-    case '0':
-      peerId = await PeerId.createFromPrivKey(Alice)
-      break
-    case '1':
-      peerId = await PeerId.createFromPrivKey(Bob)
-      break
-    default:
-      console.log(`Invalid CLI options. Either run with '0' or '1'. Got ${process.argv[2]}`)
-      process.exit()
-  }
+  const clientPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[4]))
 
   const node = await libp2p.create({
-    peerId,
+    peerId: clientPeerId,
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${clientPort}/p2p/${peerId.toB58String()}`)]
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${clientPort}/p2p/${clientPeerId.toB58String()}`)]
     },
     modules: {
       transport: [HoprConnect],
