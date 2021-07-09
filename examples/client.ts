@@ -16,6 +16,7 @@ const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
 async function main() {
   const clientPort = process.argv[3]
+  const clientIdentityName = process.argv[4]
   const relayPort = process.argv[5]
   const relayPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[6]))
   let counterPartyPeerId
@@ -25,7 +26,7 @@ async function main() {
 
   const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${relayPort}/p2p/${relayPeerId}`)
 
-  const clientPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[4]))
+  const clientPeerId = await PeerId.createFromPrivKey(getIdentity(clientIdentityName))
   
   const node = await libp2p.create({
     peerId: clientPeerId,
@@ -79,10 +80,12 @@ async function main() {
 
   await node.dial(RELAY_ADDRESS)
 
+  console.log(`running client ${clientIdentityName} on port ${clientPort}`)
+
   console.log(`giving counterparty time to start`)
   await new Promise((resolve) => setTimeout(resolve, durations.seconds(8)))
   console.log(`end Timeout`)
-
+  
   //@ts-ignore
   let conn: Handler
 
@@ -118,18 +121,7 @@ async function main() {
       } catch (err) {
         console.log(err)
         return
-      }
-    // case '1':
-    //   conn = await node.dialProtocol(
-    //     Multiaddr(`/ip4/127.0.0.1/tcp/9090/p2p/${await PeerId.createFromPrivKey(Alice)}`),
-    //     TEST_PROTOCOL
-    //   )
-
-    //   break
-    // default:
-    //   console.log(`Invalid CLI options. Either run with '0' or '1'. Got ${process.argv[2]}`)
-    //   process.exit()
-    console.log('running')
+      }    
   }
 
   
