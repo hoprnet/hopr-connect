@@ -95,17 +95,13 @@ async function main() {
         new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId.toB58String()}`),
         TEST_PROTOCOL
       )
-      await pipe(
-        [new TextEncoder().encode(`test`)],
-        conn.stream,
-        async (source: Stream['source']) => {
-          for await (const msg of source) {
-            const decoded = new TextDecoder().decode(msg.slice())
+      await pipe([new TextEncoder().encode(`test`)], conn.stream, async (source: Stream['source']) => {
+        for await (const msg of source) {
+          const decoded = new TextDecoder().decode(msg.slice())
 
-            console.log(`Received <${decoded}>`)
-          }
+          console.log(`Received <${decoded}>`)
         }
-      )
+      })
     } catch (err) {
       console.log(err)
       return
