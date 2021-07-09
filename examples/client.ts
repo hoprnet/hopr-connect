@@ -19,7 +19,7 @@ async function main() {
   const clientIdentityName = process.argv[4]
   const relayPort = process.argv[5]
   const relayPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[6]))
-  let counterPartyPeerId: PeerId | null
+  let counterPartyPeerId: PeerId | null = null
   if(process.argv[7]) {
     counterPartyPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[7]))
   }
