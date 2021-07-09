@@ -21,17 +21,17 @@ usage() {
 
 # setup paths
 declare tmp="/tmp"
-declare server_log="${tmp}/hopr-connect-server.log"
-declare server_pid
+declare alice_log="${tmp}/hopr-connect-alice.log"
+declare alice_port=9091
 
-declare client0_log="${tmp}/hopr-connect-client0.log"
-declare client0_pid
+declare bob_log="${tmp}/hopr-connect-bob.log"
+declare bob_port=9092
 
-declare client1_log="${tmp}/hopr-connect-client1.log"
-declare client1_pid
+declare charly_log="${tmp}/hopr-connect-charly.log"
+declare charly_port=9090
 
 function free_ports {
-    for port in 9090 9091 9092; do
+    for port in ${alice_port} ${bob_port} ${charly_port}; do
         if lsof -i ":${port}" -s TCP:LISTEN; then
         lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
         fi
@@ -42,13 +42,6 @@ function cleanup {
   local EXIT_CODE=$?
 
   trap - SIGINT SIGTERM ERR EXIT
-
-  # Cleaning up everything
-  log "Stopping up processes"
-  for pid in ${server_pid} ${client0_pid} ${client1_pid}; do
-    kill -9 ${pid}
-    log "killed ${pid}"    
-  done
 
   free_ports
 
@@ -96,23 +89,24 @@ fi
 free_ports
 
 # check ports are free
-ensure_port_is_free 9090
-ensure_port_is_free 9091
-ensure_port_is_free 9092
+
+for port in ${alice_port} ${bob_port} ${charly_port}; do
+  ensure_port_is_free ${port}
+done
 
 log "Test started"
 
 # remove logs
-rm -Rf "${server_log}"
-rm -Rf "${client1_log}"
-rm -Rf "${client0_log}"
+rm -Rf "${charly_log}"
+rm -Rf "${bob_log}"
+rm -Rf "${alice_log}"
 
 # run nodes
-server_pid=$(start_node examples/server.ts "${server_log}")
-client1_pid=$(start_node examples/client.ts ${client1_log} 1)
-client0_pid=$(start_node examples/client.ts ${client0_log} 0)
+start_node examples/server.ts "${charly_log}"
+start_node examples/client.ts ${bob_log} 1
+start_node examples/client.ts ${alice_log} 0
 
-wait_for_regex_in_file ${client1_log} "Received message <test>"
-wait_for_regex_in_file ${client0_log} "Received <Echoing <test>>"
+wait_for_regex_in_file ${bob_log} "Received message <test>"
+wait_for_regex_in_file ${alice_log} "Received <Echoing <test>>"
 
 log "Test succesful"
