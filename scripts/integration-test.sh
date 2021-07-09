@@ -22,13 +22,13 @@ usage() {
 # setup paths
 declare tmp="/tmp"
 declare alice_log="${tmp}/hopr-connect-alice.log"
-declare alice_port=9090
+declare alice_port=11090
 
 declare bob_log="${tmp}/hopr-connect-bob.log"
-declare bob_port=9091
+declare bob_port=11091
 
 declare charly_log="${tmp}/hopr-connect-charly.log"
-declare charly_port=9092
+declare charly_port=11092
 
 function free_ports {
     for port in ${alice_port} ${bob_port} ${charly_port}; do
