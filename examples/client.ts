@@ -15,7 +15,7 @@ import pipe from 'it-pipe'
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
 async function main() {
-  const clientPort = process.argv[2]
+  const clientPort = process.argv[3]
   
   const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/9092/p2p/${await PeerId.createFromPrivKey(Charly)}`)
 
