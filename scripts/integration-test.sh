@@ -10,6 +10,9 @@ mydir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 declare HOPR_LOG_ID="hopr-connect-test"
 source "${mydir}/../scripts/utils.sh"
 
+# exit on errors, undefined variables, ensure errors in pipes are not hidden
+set -Eeuo pipefail
+
 usage() {
   msg
   msg "Usage: $0"

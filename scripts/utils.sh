@@ -3,7 +3,10 @@
 # prevent execution of this script, only allow execution
 $(return >/dev/null 2>&1)
 test "$?" -eq "0" || { echo "This script should only be sourced." >&2; exit 1; }
-    
+
+# exit on errors, undefined variables, ensure errors in pipes are not hidden
+set -Eeuo pipefail
+
 # $1=version string, semver
 function get_version_maj_min() {
   echo $(get_version_maj_min_pat $1 | cut -d. -f1,2)
@@ -54,14 +57,11 @@ function wait_for_regex_in_file() {
     log "Waiting for ${regex} in ${file}..."    
     
     declare delay=0.1
-    set +eE
-
+    
     while true; do
       sleep ${delay}
-      set +eE
-      grep -q "${regex}" "${file}"
-      declare grep_exit_code="$?"            
-      if [[ "${grep_exit_code}" == 0 ]]; then
+      local res=$(grep -E "${regex}" "${file}" || echo "")
+      if [[ "${res}" != "" ]]; then
         return 0
       fi      
     done
