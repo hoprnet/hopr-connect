@@ -102,7 +102,7 @@ rm -Rf "${bob_log}"
 rm -Rf "${alice_log}"
 
 # run nodes
-start_node examples/server.ts "${charly_log}"
+start_node examples/server.ts "${charly_log}" ${charly_port} 'charly'
 start_node examples/client.ts ${bob_log} 1 ${bob_port} 'bob' ${charly_port} 'charly'
 start_node examples/client.ts ${alice_log} 0 ${alice_port} 'alice'  ${charly_port} 'charly' 'bob'
 
