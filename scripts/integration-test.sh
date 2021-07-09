@@ -103,8 +103,8 @@ rm -Rf "${alice_log}"
 
 # run nodes
 start_node examples/server.ts "${charly_log}"
-start_node examples/client.ts ${bob_log} 1
-start_node examples/client.ts ${alice_log} 0
+start_node examples/client.ts ${bob_log} 1 {$bob_port}
+start_node examples/client.ts ${alice_log} 0 {$alice_port}
 
 wait_for_regex_in_file ${bob_log} "Received message <test>"
 wait_for_regex_in_file ${alice_log} "Received <Echoing <test>>"

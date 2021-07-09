@@ -15,18 +15,17 @@ import pipe from 'it-pipe'
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
 async function main() {
+  const clientPort = process.argv[2]
+  
   const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/9092/p2p/${await PeerId.createFromPrivKey(Charly)}`)
 
   let peerId: PeerId
-  let port: number
   switch (process.argv[2]) {
     case '0':
       peerId = await PeerId.createFromPrivKey(Alice)
-      port = 9090
       break
     case '1':
       peerId = await PeerId.createFromPrivKey(Bob)
-      port = 9091
       break
     default:
       console.log(`Invalid CLI options. Either run with '0' or '1'. Got ${process.argv[2]}`)
@@ -36,7 +35,7 @@ async function main() {
   const node = await libp2p.create({
     peerId,
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${port}/p2p/${peerId.toB58String()}`)]
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${clientPort}/p2p/${peerId.toB58String()}`)]
     },
     modules: {
       transport: [HoprConnect],
