@@ -24,7 +24,7 @@ async function main() {
     counterPartyPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[7]))
   }
 
-  const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${relayPort}/p2p/${relayPeerId}`)
+  const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${relayPort}/p2p/${relayPeerId.toB58String()}`)
 
   const clientPeerId = await PeerId.createFromPrivKey(getIdentity(clientIdentityName))
 
@@ -92,7 +92,7 @@ async function main() {
   if (counterPartyPeerId)
     try {
       conn = await node.dialProtocol(
-        new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId}`),
+        new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId.toB58String()}`),
         TEST_PROTOCOL
       )
       await pipe(
