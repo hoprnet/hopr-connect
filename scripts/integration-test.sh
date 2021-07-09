@@ -20,7 +20,11 @@ usage() {
 }
 
 # setup paths
+# find usable tmp dir
 declare tmp="/tmp"
+[[ -d "${tmp}" && -h "${tmp}" ]] && tmp="/var/tmp"
+[[ -d "${tmp}" && -h "${tmp}" ]] && { msg "Neither /tmp or /var/tmp can be used for writing logs"; exit 1; }
+
 declare alice_log="${tmp}/hopr-connect-alice.log"
 declare alice_port=11090
 
