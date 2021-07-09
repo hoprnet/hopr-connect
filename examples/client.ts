@@ -20,14 +20,14 @@ async function main() {
   const relayPort = process.argv[5]
   const relayPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[6]))
   let counterPartyPeerId: PeerId | null = null
-  if(process.argv[7]) {
+  if (process.argv[7]) {
     counterPartyPeerId = await PeerId.createFromPrivKey(getIdentity(process.argv[7]))
   }
 
   const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${relayPort}/p2p/${relayPeerId}`)
 
   const clientPeerId = await PeerId.createFromPrivKey(getIdentity(clientIdentityName))
-  
+
   const node = await libp2p.create({
     peerId: clientPeerId,
     addresses: {
@@ -85,45 +85,41 @@ async function main() {
   console.log(`giving counterparty time to start`)
   await new Promise((resolve) => setTimeout(resolve, durations.seconds(8)))
   console.log(`end Timeout`)
-  
+
   //@ts-ignore
   let conn: Handler
 
-  if(counterPartyPeerId)
-      try {
-        conn = await node.dialProtocol(
-          new Multiaddr(
-            `/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId}`
-          ),
-          TEST_PROTOCOL
-        )      
-        await pipe(
-          // prettier-ignore
-          // async function * () {
-          //   let i = 0
-          //   while(true) {
-          //     yield new TextEncoder().encode(`test ${i}`)
+  if (counterPartyPeerId)
+    try {
+      conn = await node.dialProtocol(
+        new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId}`),
+        TEST_PROTOCOL
+      )
+      await pipe(
+        // prettier-ignore
+        // async function * () {
+        //   let i = 0
+        //   while(true) {
+        //     yield new TextEncoder().encode(`test ${i}`)
 
-          //     await new Promise(resolve => setTimeout(resolve, 100))
-          //     i++
-          //   }
-          // }(),
-          [new TextEncoder().encode(`test`)],
-          conn.stream,
-          async (source: Stream['source']) => {
-            for await (const msg of source) {
-              const decoded = new TextDecoder().decode(msg.slice())
+        //     await new Promise(resolve => setTimeout(resolve, 100))
+        //     i++
+        //   }
+        // }(),
+        [new TextEncoder().encode(`test`)],
+        conn.stream,
+        async (source: Stream['source']) => {
+          for await (const msg of source) {
+            const decoded = new TextDecoder().decode(msg.slice())
 
-              console.log(`Received <${decoded}>`)
-            }
+            console.log(`Received <${decoded}>`)
           }
-        )
-      } catch (err) {
-        console.log(err)
-        return
-      }    
-  }
-
-  
+        }
+      )
+    } catch (err) {
+      console.log(err)
+      return
+    }
+}
 
 main()
