@@ -12,6 +12,7 @@ import pipe from 'it-pipe'
 import yargs from 'yargs/yargs'
 import { peerIdForIdentity } from './util'
 import PeerId from 'peer-id'
+import LibP2P from 'libp2p'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
@@ -56,6 +57,26 @@ async function startNode({ clientPeerId, clientPort, bootstrapAddress }: {
   return node
 }
 
+function handleProtocol(node: LibP2P) {
+  node.handle(TEST_PROTOCOL, (struct: Handler) => {
+    pipe(
+      struct.stream.source,
+      (source: Stream['source']) => {
+        return (async function* () {
+          for await (const msg of source) {
+            const decoded = new TextDecoder().decode(msg.slice())
+
+            console.log(`Received message <${decoded}>`)
+
+            yield new TextEncoder().encode(`Echoing <${decoded}>`)
+          }
+        })()
+      },
+      struct.stream.sink
+    )
+  })
+}
+
 async function main() {
   const argv = yargs(process.argv.slice(2))
     .option('clientPort', {
@@ -91,24 +112,7 @@ async function main() {
 
   console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
   const node = await startNode({ clientPeerId, clientPort: argv.clientPort, bootstrapAddress })
-
-  node.handle(TEST_PROTOCOL, (struct: Handler) => {
-    pipe(
-      struct.stream.source,
-      (source: Stream['source']) => {
-        return (async function* () {
-          for await (const msg of source) {
-            const decoded = new TextDecoder().decode(msg.slice())
-
-            console.log(`Received message <${decoded}>`)
-
-            yield new TextEncoder().encode(`Echoing <${decoded}>`)
-          }
-        })()
-      },
-      struct.stream.sink
-    )
-  })
+  handleProtocol(node)
   
   if(!argv.command) { return }
   for(const cmdString of argv.command) {
