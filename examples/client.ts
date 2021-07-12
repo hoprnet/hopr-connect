@@ -17,32 +17,32 @@ const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
 async function main() {
   const argv = yargs(process.argv.slice(2))
-  .option('clientPort', {
-    describe: 'client port',
-    type: 'number',
-    demandOption: true,
-  })
-  .option('clientIdentityName', {
-    describe: 'client identity name',
-    choices: [ 'alice', 'bob', 'charly', 'dave', 'ed' ],
-    demandOption: true
-  })
-  .option('relayPort', {
-    describe: 'relayPort port',
-    type: 'number',
-    demandOption: true,
-  })
-  .option('relayIdentityName', {
-    describe: 'identity name of a relay',
-    choices: [ 'alice', 'bob', 'charly', 'dave', 'ed' ],
-    demandOption: true
-  })
-  .option('counterPartyIdentityName', {
-    describe: 'identity name of a counter party to send msg to',
-    choices: [ 'alice', 'bob', 'charly', 'dave', 'ed' ],
-  })
-  .parseSync()
-  
+    .option('clientPort', {
+      describe: 'client port',
+      type: 'number',
+      demandOption: true
+    })
+    .option('clientIdentityName', {
+      describe: 'client identity name',
+      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
+      demandOption: true
+    })
+    .option('relayPort', {
+      describe: 'relayPort port',
+      type: 'number',
+      demandOption: true
+    })
+    .option('relayIdentityName', {
+      describe: 'identity name of a relay',
+      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
+      demandOption: true
+    })
+    .option('counterPartyIdentityName', {
+      describe: 'identity name of a counter party to send msg to',
+      choices: ['alice', 'bob', 'charly', 'dave', 'ed']
+    })
+    .parseSync()
+
   const relayPeerId = await PeerId.createFromPrivKey(getIdentity(argv.relayIdentityName))
   let counterPartyPeerId: PeerId | null = null
   if (argv.counterPartyIdentityName) {
