@@ -27,19 +27,15 @@ async function main() {
       choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
       demandOption: true
     })
-    .option('relayPort', {
-      describe: 'relayPort port',
+    .option('bootstrapPort', {
+      describe: 'bootstrap node port',
       type: 'number',
       demandOption: true
     })
-    .option('relayIdentityName', {
-      describe: 'identity name of a relay',
+    .option('bootstrapIdentityName', {
+      describe: 'identity name of a boostrap server',
       choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
       demandOption: true
-    })
-    .option('counterPartyIdentityName', {
-      describe: 'identity name of a counter party to send msg to',
-      choices: ['alice', 'bob', 'charly', 'dave', 'ed']
     })
     .option('command', {
       describe: 'example: --command.name dial --command.targetIdentityName charly',
@@ -48,12 +44,11 @@ async function main() {
     .parseSync()
 
   
-  const relayPeerId = await PeerId.createFromPrivKey(getIdentity(argv.relayIdentityName))
-
-  const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.relayPort}/p2p/${relayPeerId.toB58String()}`)
-
+  const bootstrapPeerId = await PeerId.createFromPrivKey(getIdentity(argv.bootstrapIdentityName))
+  const bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
   const clientPeerId = await PeerId.createFromPrivKey(getIdentity(argv.clientIdentityName))
 
+  console.log(`using bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
     peerId: clientPeerId,
     addresses: {
@@ -67,7 +62,7 @@ async function main() {
     config: {
       transport: {
         HoprConnect: {
-          bootstrapServers: [RELAY_ADDRESS],
+          bootstrapServers: [bootstrapAddress],
           // simulates a NAT
           // DO NOT use this in production
           __noDirectConnections: true,
@@ -105,6 +100,7 @@ async function main() {
   })
   console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
 
+  if(!argv.command) { return }
   for(const cmdString of argv.command) {
     const tokens = cmdString.split(',')
     const cmd = tokens[0]

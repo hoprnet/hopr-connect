@@ -117,17 +117,19 @@ start_node examples/server.ts "${charly_log}" \
 start_node examples/client.ts ${bob_log}  \
   --clientPort ${bob_port} \
   --clientIdentityName 'bob' \
-  --relayPort ${charly_port} \
-  --relayIdentityName 'charly'
+  --bootstrapPort ${charly_port} \
+  --bootstrapIdentityName 'charly' \
+  --command "wait,8" \
+  --command "dial,charly,${charly_port}" 
 
 start_node examples/client.ts ${alice_log} \
   --clientPort ${alice_port} \
   --clientIdentityName 'alice' \
-  --relayPort ${charly_port} \
-  --relayIdentityName 'charly' \
+  --bootstrapPort ${charly_port} \
+  --bootstrapIdentityName 'charly' \
   --command "wait,8" \
   --command "dial,charly,${charly_port}" \
-  --command "msg,charly,alice,test"
+  --command "msg,charly,bob,test"
 
 
 wait_for_regex_in_file ${bob_log} "Received message <test>"
