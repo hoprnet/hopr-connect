@@ -14,15 +14,15 @@ async function main() {
     .option('serverPort', {
       describe: 'server port name',
       type: 'number',
-      demandOption: true,      
+      demandOption: true
     })
     .option('serverIdentityName', {
       describe: 'server identity name',
-      choices: [ 'alice', 'bob', 'charly', 'dave', 'ed' ],
+      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
       demandOption: true
     })
     .parseSync()
-    
+
   const serverPeerId = await PeerId.createFromPrivKey(getIdentity(argv.serverIdentityName))
 
   const node = await libp2p.create({
