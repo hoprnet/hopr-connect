@@ -4,10 +4,9 @@ import { NOISE } from 'libp2p-noise'
 const MPLEX = require('libp2p-mplex')
 
 import { HoprConnect } from '../src'
-import { getIdentity } from './identities'
-import PeerId from 'peer-id'
 import { Multiaddr } from 'multiaddr'
 import yargs from 'yargs/yargs'
+import { peerIdForIdentity } from './util'
 
 async function main() {
   const argv = yargs(process.argv.slice(2))
@@ -23,7 +22,7 @@ async function main() {
     })
     .parseSync()
 
-  const serverPeerId = await PeerId.createFromPrivKey(getIdentity(argv.serverIdentityName))
+  const serverPeerId = await peerIdForIdentity(argv.serverIdentityName)
 
   const node = await libp2p.create({
     peerId: serverPeerId,

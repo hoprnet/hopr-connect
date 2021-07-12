@@ -8,10 +8,9 @@ const MPLEX = require('libp2p-mplex')
 
 import { HoprConnect } from '../src'
 import { Multiaddr } from 'multiaddr'
-import PeerId from 'peer-id'
-import { getIdentity } from './identities'
 import pipe from 'it-pipe'
 import yargs from 'yargs/yargs'
+import { peerIdForIdentity } from './util'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
@@ -44,9 +43,9 @@ async function main() {
     .parseSync()
 
   
-  const bootstrapPeerId = await PeerId.createFromPrivKey(getIdentity(argv.bootstrapIdentityName))
+  const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)
   const bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
-  const clientPeerId = await PeerId.createFromPrivKey(getIdentity(argv.clientIdentityName))
+  const clientPeerId = await peerIdForIdentity(argv.clientIdentityName)
 
   console.log(`using bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
@@ -117,7 +116,7 @@ async function main() {
       {
         const targetIdentityName = tokens[1]
         const targetPort = parseInt(tokens[2])
-        const targetPeerId = await PeerId.createFromPrivKey(getIdentity(targetIdentityName))
+        const targetPeerId = await peerIdForIdentity(targetIdentityName)
         const targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${targetPort}/p2p/${targetPeerId.toB58String()}`)
         console.log(`dialing ${targetIdentityName}`)
         await node.dial(targetAddress)
@@ -130,8 +129,8 @@ async function main() {
         const targetIdentityName = tokens[2]
         const msg = tokens[3]
         
-        const targetPeerId = await PeerId.createFromPrivKey(getIdentity(targetIdentityName))
-        const relayPeerId = await PeerId.createFromPrivKey(getIdentity(relayIdentityName))
+        const targetPeerId = await peerIdForIdentity(targetIdentityName)
+        const relayPeerId = await peerIdForIdentity(relayIdentityName)
         //@ts-ignore
         let conn: Handler
 
