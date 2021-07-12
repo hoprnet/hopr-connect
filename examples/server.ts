@@ -7,16 +7,28 @@ import { HoprConnect } from '../src'
 import { getIdentity } from './identities'
 import PeerId from 'peer-id'
 import { Multiaddr } from 'multiaddr'
+import yargs from 'yargs/yargs'
 
 async function main() {
-  const serverPort = process.argv[2]
-  const serverIdentityName = process.argv[3]
-  const serverPeerId = await PeerId.createFromPrivKey(getIdentity(serverIdentityName))
+  const argv = yargs(process.argv.slice(2))
+    .option('server-port', {
+      describe: 'server port name',
+      type: 'number',
+      demandOption: true,      
+    })
+    .option('server-identity-name', {
+      describe: 'server identity name',
+      choices: [ 'alice', 'bob', 'charly', 'dave', 'ed' ],
+      demandOption: true
+    })
+    .parseSync()
+    
+  const serverPeerId = await PeerId.createFromPrivKey(getIdentity(argv['server-identity-name']))
 
   const node = await libp2p.create({
     peerId: serverPeerId,
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${serverPort}/p2p/${serverPeerId.toB58String()}`)]
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${argv['server-port']}/p2p/${serverPeerId.toB58String()}`)]
     },
     modules: {
       transport: [HoprConnect],
@@ -36,7 +48,7 @@ async function main() {
 
   await node.start()
 
-  console.log(`running server ${serverIdentityName} on port ${serverPort}`)
+  console.log(`running server ${argv['server-identity']} on port ${argv['server-port']}`)
 }
 
 main()
