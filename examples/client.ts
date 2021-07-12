@@ -77,45 +77,8 @@ function handleProtocol(node: LibP2P) {
   })
 }
 
-async function main() {
-  const argv = yargs(process.argv.slice(2))
-    .option('clientPort', {
-      describe: 'client port',
-      type: 'number',
-      demandOption: true
-    })
-    .option('clientIdentityName', {
-      describe: 'client identity name',
-      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
-      demandOption: true
-    })
-    .option('bootstrapPort', {
-      describe: 'bootstrap node port',
-      type: 'number',
-      demandOption: true
-    })
-    .option('bootstrapIdentityName', {
-      describe: 'identity name of a boostrap server',
-      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
-      demandOption: true
-    })
-    .option('command', {
-      describe: 'example: --command.name dial --command.targetIdentityName charly',
-      type: 'string',
-    })
-    .parseSync()
-
-  
-  const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)
-  const bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
-  const clientPeerId = await peerIdForIdentity(argv.clientIdentityName)
-
-  console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
-  const node = await startNode({ clientPeerId, clientPort: argv.clientPort, bootstrapAddress })
-  handleProtocol(node)
-  
-  if(!argv.command) { return }
-  for(const cmdString of argv.command) {
+async function executeCommands({ node, cmds }: { node: LibP2P, cmds: string[] }) {
+  for(const cmdString of cmds) {
     const tokens = cmdString.split(',')
     const cmd = tokens[0]
     switch(cmd) {
@@ -167,6 +130,48 @@ async function main() {
      }
     } 
   }
+}
+
+async function main() {
+  const argv = yargs(process.argv.slice(2))
+    .option('clientPort', {
+      describe: 'client port',
+      type: 'number',
+      demandOption: true
+    })
+    .option('clientIdentityName', {
+      describe: 'client identity name',
+      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
+      demandOption: true
+    })
+    .option('bootstrapPort', {
+      describe: 'bootstrap node port',
+      type: 'number',
+      demandOption: true
+    })
+    .option('bootstrapIdentityName', {
+      describe: 'identity name of a boostrap server',
+      choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
+      demandOption: true
+    })
+    .option('command', {
+      describe: 'example: --command.name dial --command.targetIdentityName charly',
+      type: 'string',
+    })
+    .parseSync()
+
+  
+  const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)
+  const bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
+  const clientPeerId = await peerIdForIdentity(argv.clientIdentityName)
+
+  console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
+  const node = await startNode({ clientPeerId, clientPort: argv.clientPort, bootstrapAddress })
+  handleProtocol(node)
+  
+  if(argv.command) {
+    await executeCommands({ node, cmds: [argv.command].flat() })
+  }  
 }
 
 main()
