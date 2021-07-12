@@ -105,6 +105,10 @@ rm -Rf "${charly_log}"
 rm -Rf "${bob_log}"
 rm -Rf "${alice_log}"
 
+log "alice -> ${alice_log}"
+log "bob -> ${bob_log}"
+log "charly -> ${charly_log}"
+
 # run nodes
 start_node examples/server.ts "${charly_log}" ${charly_port} 'charly'
 start_node examples/client.ts ${bob_log} 1 ${bob_port} 'bob' ${charly_port} 'charly'
