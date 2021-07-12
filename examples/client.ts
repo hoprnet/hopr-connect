@@ -11,8 +11,50 @@ import { Multiaddr } from 'multiaddr'
 import pipe from 'it-pipe'
 import yargs from 'yargs/yargs'
 import { peerIdForIdentity } from './util'
+import PeerId from 'peer-id'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
+
+async function startNode({ clientPeerId, clientPort, bootstrapAddress }: {
+  clientPeerId: PeerId,
+  clientPort: number,
+  bootstrapAddress: Multiaddr,
+}) {  
+  console.log(`starting node, bootstrap address ${bootstrapAddress}`)
+  const node = await libp2p.create({
+    peerId: clientPeerId,
+    addresses: {
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${clientPort}/p2p/${clientPeerId.toB58String()}`)]
+    },
+    modules: {
+      transport: [HoprConnect],
+      streamMuxer: [MPLEX],
+      connEncryption: [NOISE]
+    },
+    config: {
+      transport: {
+        HoprConnect: {
+          bootstrapServers: [bootstrapAddress],
+          // simulates a NAT
+          // DO NOT use this in production
+          __noDirectConnections: true,
+          __noWebRTCUpgrade: false
+        }
+      },
+      peerDiscovery: {
+        autoDial: false
+      }
+    },
+    dialer: {
+      // Temporary fix
+      addressSorter: (ma: Multiaddr) => ma
+    }
+  })
+
+  await node.start()
+  console.log(`node started`)
+  return node
+}
 
 async function main() {
   const argv = yargs(process.argv.slice(2))
@@ -47,38 +89,8 @@ async function main() {
   const bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
   const clientPeerId = await peerIdForIdentity(argv.clientIdentityName)
 
-  console.log(`using bootstrap address ${bootstrapAddress}`)
-  const node = await libp2p.create({
-    peerId: clientPeerId,
-    addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${argv.clientPort}/p2p/${clientPeerId.toB58String()}`)]
-    },
-    modules: {
-      transport: [HoprConnect],
-      streamMuxer: [MPLEX],
-      connEncryption: [NOISE]
-    },
-    config: {
-      transport: {
-        HoprConnect: {
-          bootstrapServers: [bootstrapAddress],
-          // simulates a NAT
-          // DO NOT use this in production
-          __noDirectConnections: true,
-          __noWebRTCUpgrade: false
-        }
-      },
-      peerDiscovery: {
-        autoDial: false
-      }
-    },
-    dialer: {
-      // Temporary fix
-      addressSorter: (ma: Multiaddr) => ma
-    }
-  })
-
-  await node.start()
+  console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
+  const node = await startNode({ clientPeerId, clientPort: argv.clientPort, bootstrapAddress })
 
   node.handle(TEST_PROTOCOL, (struct: Handler) => {
     pipe(
@@ -97,8 +109,7 @@ async function main() {
       struct.stream.sink
     )
   })
-  console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
-
+  
   if(!argv.command) { return }
   for(const cmdString of argv.command) {
     const tokens = cmdString.split(',')
