@@ -11,24 +11,24 @@ import yargs from 'yargs/yargs'
 
 async function main() {
   const argv = yargs(process.argv.slice(2))
-    .option('server-port', {
+    .option('serverPort', {
       describe: 'server port name',
       type: 'number',
       demandOption: true,      
     })
-    .option('server-identity-name', {
+    .option('serverIdentityName', {
       describe: 'server identity name',
       choices: [ 'alice', 'bob', 'charly', 'dave', 'ed' ],
       demandOption: true
     })
     .parseSync()
     
-  const serverPeerId = await PeerId.createFromPrivKey(getIdentity(argv['server-identity-name']))
+  const serverPeerId = await PeerId.createFromPrivKey(getIdentity(argv.serverIdentityName))
 
   const node = await libp2p.create({
     peerId: serverPeerId,
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${argv['server-port']}/p2p/${serverPeerId.toB58String()}`)]
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${argv.serverPort}/p2p/${serverPeerId.toB58String()}`)]
     },
     modules: {
       transport: [HoprConnect],
@@ -48,7 +48,7 @@ async function main() {
 
   await node.start()
 
-  console.log(`running server ${argv['server-identity']} on port ${argv['server-port']}`)
+  console.log(`running server ${argv.serverIdentityName} on port ${argv.serverPort}`)
 }
 
 main()
