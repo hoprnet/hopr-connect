@@ -41,13 +41,14 @@ async function main() {
       describe: 'identity name of a counter party to send msg to',
       choices: ['alice', 'bob', 'charly', 'dave', 'ed']
     })
+    .option('command', {
+      describe: 'example: --command.name dial --command.targetIdentityName charly',
+      type: 'string',
+    })
     .parseSync()
 
+  
   const relayPeerId = await PeerId.createFromPrivKey(getIdentity(argv.relayIdentityName))
-  let counterPartyPeerId: PeerId | null = null
-  if (argv.counterPartyIdentityName) {
-    counterPartyPeerId = await PeerId.createFromPrivKey(getIdentity(argv.counterPartyIdentityName))
-  }
 
   const RELAY_ADDRESS = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.relayPort}/p2p/${relayPeerId.toB58String()}`)
 
@@ -102,35 +103,60 @@ async function main() {
       struct.stream.sink
     )
   })
-
-  await node.dial(RELAY_ADDRESS)
-
   console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
 
-  console.log(`giving counterparty time to start`)
-  await new Promise((resolve) => setTimeout(resolve, durations.seconds(8)))
-  console.log(`end Timeout`)
+  for(const cmdString of argv.command) {
+    const tokens = cmdString.split(',')
+    const cmd = tokens[0]
+    switch(cmd) {
+      case 'wait':
+      {
+        const waitForSecs = parseFloat(tokens[1])
+        console.log(`waiting ${waitForSecs} secs`)
+        await new Promise((resolve) => setTimeout(resolve, durations.seconds(waitForSecs)))
+        console.log(`finished waiting`)
+        break
+      }
+      case 'dial': 
+      {
+        const targetIdentityName = tokens[1]
+        const targetPort = parseInt(tokens[2])
+        const targetPeerId = await PeerId.createFromPrivKey(getIdentity(targetIdentityName))
+        const targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${targetPort}/p2p/${targetPeerId.toB58String()}`)
+        console.log(`dialing ${targetIdentityName}`)
+        await node.dial(targetAddress)
+        console.log(`dialed`)
+        break
+      }
+      case 'msg':
+      {
+        const relayIdentityName = tokens[1]
+        const targetIdentityName = tokens[2]
+        const msg = tokens[3]
+        
+        const targetPeerId = await PeerId.createFromPrivKey(getIdentity(targetIdentityName))
+        const relayPeerId = await PeerId.createFromPrivKey(getIdentity(relayIdentityName))
+        //@ts-ignore
+        let conn: Handler
 
-  //@ts-ignore
-  let conn: Handler
+        console.log(`msg: dialing ${targetIdentityName} though relay ${relayIdentityName}`)
+        conn = await node.dialProtocol(
+          new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
+          TEST_PROTOCOL
+        )
+        console.log(`piping msg: ${msg}`)
+        
+        await pipe([new TextEncoder().encode(msg)], conn.stream, async (source: Stream['source']) => {
+          for await (const msg of source) {
+            const decoded = new TextDecoder().decode(msg.slice())
 
-  if (counterPartyPeerId)
-    try {
-      conn = await node.dialProtocol(
-        new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${counterPartyPeerId.toB58String()}`),
-        TEST_PROTOCOL
-      )
-      await pipe([new TextEncoder().encode(`test`)], conn.stream, async (source: Stream['source']) => {
-        for await (const msg of source) {
-          const decoded = new TextDecoder().decode(msg.slice())
-
-          console.log(`Received <${decoded}>`)
-        }
-      })
-    } catch (err) {
-      console.log(err)
-      return
-    }
+            console.log(`Received <${decoded}>`)
+          }
+        })  
+        console.log(`sent msg`)               
+     }
+    } 
+  }
 }
 
 main()

@@ -125,7 +125,10 @@ start_node examples/client.ts ${alice_log} \
   --clientIdentityName 'alice' \
   --relayPort ${charly_port} \
   --relayIdentityName 'charly' \
-  --counterPartyIdentityName 'bob'
+  --command "wait,8" \
+  --command "dial,charly,${charly_port}" \
+  --command "msg,charly,alice,test"
+
 
 wait_for_regex_in_file ${bob_log} "Received message <test>"
 wait_for_regex_in_file ${alice_log} "Received <Echoing <test>>"
