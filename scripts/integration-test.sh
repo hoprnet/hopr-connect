@@ -114,7 +114,7 @@ start_node tests/node.ts "${charly_log}" \
   --port ${charly_port} \
   --identityName 'charly'
 
-start_node tests/node.ts ${bob_log}  \
+start_node tests/node.ts "${bob_log}"  \
   --port ${bob_port} \
   --identityName 'bob' \
   --bootstrapPort ${charly_port} \
@@ -122,7 +122,7 @@ start_node tests/node.ts ${bob_log}  \
   --command "wait,8" \
   --command "dial,charly,${charly_port}" 
 
-start_node tests/node.ts ${alice_log} \
+start_node tests/node.ts "${alice_log}" \
   --port ${alice_port} \
   --identityName 'alice' \
   --bootstrapPort ${charly_port} \
