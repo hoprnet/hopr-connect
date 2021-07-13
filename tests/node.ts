@@ -16,16 +16,16 @@ import LibP2P from 'libp2p'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
-async function startNode({ clientPeerId, port, bootstrapAddress }: {
-  clientPeerId: PeerId,
+async function startNode({ peerId, port, bootstrapAddress }: {
+  peerId: PeerId,
   port: number,
   bootstrapAddress?: Multiaddr,
 }) {  
   console.log(`starting node, bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
-    peerId: clientPeerId,
+    peerId,
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${port}/p2p/${clientPeerId.toB58String()}`)]
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${port}/p2p/${peerId.toB58String()}`)]
     },
     modules: {
       transport: [HoprConnect],
@@ -165,10 +165,10 @@ async function main() {
     const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)  
     bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
   }
-  const clientPeerId = await peerIdForIdentity(argv.identityName)
+  const peerId = await peerIdForIdentity(argv.identityName)
 
-  console.log(`running client ${argv.identityName} on port ${argv.port}`)
-  const node = await startNode({ clientPeerId, port: argv.port, bootstrapAddress })
+  console.log(`running node ${argv.identityName} on port ${argv.port}`)
+  const node = await startNode({ peerId, port: argv.port, bootstrapAddress })
   handleProtocol(node)
   
   if(argv.command) {
