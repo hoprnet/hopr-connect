@@ -110,11 +110,11 @@ log "bob -> ${bob_log}"
 log "charly -> ${charly_log}"
 
 # run nodes
-start_node examples/client.ts "${charly_log}" \
+start_node tests/node.ts "${charly_log}" \
   --clientPort ${charly_port} \
   --clientIdentityName 'charly'
 
-start_node examples/client.ts ${bob_log}  \
+start_node tests/node.ts ${bob_log}  \
   --clientPort ${bob_port} \
   --clientIdentityName 'bob' \
   --bootstrapPort ${charly_port} \
@@ -122,7 +122,7 @@ start_node examples/client.ts ${bob_log}  \
   --command "wait,8" \
   --command "dial,charly,${charly_port}" 
 
-start_node examples/client.ts ${alice_log} \
+start_node tests/node.ts ${alice_log} \
   --clientPort ${alice_port} \
   --clientIdentityName 'alice' \
   --bootstrapPort ${charly_port} \
