@@ -16,16 +16,16 @@ import LibP2P from 'libp2p'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
-async function startNode({ clientPeerId, clientPort, bootstrapAddress }: {
+async function startNode({ clientPeerId, port, bootstrapAddress }: {
   clientPeerId: PeerId,
-  clientPort: number,
+  port: number,
   bootstrapAddress?: Multiaddr,
 }) {  
   console.log(`starting node, bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
     peerId: clientPeerId,
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${clientPort}/p2p/${clientPeerId.toB58String()}`)]
+      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${port}/p2p/${clientPeerId.toB58String()}`)]
     },
     modules: {
       transport: [HoprConnect],
@@ -134,13 +134,13 @@ async function executeCommands({ node, cmds }: { node: LibP2P, cmds: string[] })
 
 async function main() {
   const argv = yargs(process.argv.slice(2))
-    .option('clientPort', {
-      describe: 'client port',
+    .option('port', {
+      describe: 'node port',
       type: 'number',
       demandOption: true
     })
-    .option('clientIdentityName', {
-      describe: 'client identity name',
+    .option('identityName', {
+      describe: 'node identity name',
       choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
       demandOption: true
     })
@@ -165,10 +165,10 @@ async function main() {
     const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)  
     bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
   }
-  const clientPeerId = await peerIdForIdentity(argv.clientIdentityName)
+  const clientPeerId = await peerIdForIdentity(argv.identityName)
 
-  console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
-  const node = await startNode({ clientPeerId, clientPort: argv.clientPort, bootstrapAddress })
+  console.log(`running client ${argv.identityName} on port ${argv.port}`)
+  const node = await startNode({ clientPeerId, port: argv.port, bootstrapAddress })
   handleProtocol(node)
   
   if(argv.command) {
