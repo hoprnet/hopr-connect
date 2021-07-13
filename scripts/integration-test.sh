@@ -110,9 +110,9 @@ log "bob -> ${bob_log}"
 log "charly -> ${charly_log}"
 
 # run nodes
-start_node examples/server.ts "${charly_log}" \
-  --serverPort ${charly_port} \
-  --serverIdentityName 'charly'
+start_node examples/client.ts "${charly_log}" \
+  --clientPort ${charly_port} \
+  --clientIdentityName 'charly'
 
 start_node examples/client.ts ${bob_log}  \
   --clientPort ${bob_port} \

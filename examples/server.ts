@@ -22,32 +22,7 @@ async function main() {
     })
     .parseSync()
 
-  const serverPeerId = await peerIdForIdentity(argv.serverIdentityName)
-
-  const node = await libp2p.create({
-    peerId: serverPeerId,
-    addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${argv.serverPort}/p2p/${serverPeerId.toB58String()}`)]
-    },
-    modules: {
-      transport: [HoprConnect],
-      streamMuxer: [MPLEX],
-      connEncryption: [NOISE]
-    },
-    config: {
-      peerDiscovery: {
-        autoDial: false
-      }
-    },
-    dialer: {
-      // Temporary fix
-      addressSorter: (ma: Multiaddr) => ma
-    }
-  })
-
-  await node.start()
-
-  console.log(`running server ${argv.serverIdentityName} on port ${argv.serverPort}`)
+  const serverPeerId = await peerIdForIdentity(argv.serverIdentityName)  
 }
 
 main()

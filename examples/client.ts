@@ -19,7 +19,7 @@ const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 async function startNode({ clientPeerId, clientPort, bootstrapAddress }: {
   clientPeerId: PeerId,
   clientPort: number,
-  bootstrapAddress: Multiaddr,
+  bootstrapAddress?: Multiaddr,
 }) {  
   console.log(`starting node, bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
@@ -35,7 +35,7 @@ async function startNode({ clientPeerId, clientPort, bootstrapAddress }: {
     config: {
       transport: {
         HoprConnect: {
-          bootstrapServers: [bootstrapAddress],
+          bootstrapServers: bootstrapAddress ? [bootstrapAddress] : [],
           // simulates a NAT
           // DO NOT use this in production
           __noDirectConnections: true,
@@ -147,12 +147,10 @@ async function main() {
     .option('bootstrapPort', {
       describe: 'bootstrap node port',
       type: 'number',
-      demandOption: true
     })
     .option('bootstrapIdentityName', {
       describe: 'identity name of a boostrap server',
       choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
-      demandOption: true
     })
     .option('command', {
       describe: 'example: --command.name dial --command.targetIdentityName charly',
@@ -161,8 +159,12 @@ async function main() {
     .parseSync()
 
   
-  const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)
-  const bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
+  let bootstrapAddress: Multiaddr | undefined
+  
+  if(argv.bootstrapPort != null && argv.bootstrapIdentityName != null) {
+    const bootstrapPeerId = await peerIdForIdentity(argv.bootstrapIdentityName)  
+    bootstrapAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${argv.bootstrapPort}/p2p/${bootstrapPeerId.toB58String()}`)
+  }
   const clientPeerId = await peerIdForIdentity(argv.clientIdentityName)
 
   console.log(`running client ${argv.clientIdentityName} on port ${argv.clientPort}`)
