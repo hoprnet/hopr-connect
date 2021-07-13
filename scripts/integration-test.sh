@@ -112,13 +112,17 @@ log "charly -> ${charly_log}"
 # run nodes
 start_node tests/node.ts "${charly_log}" \
   --port ${charly_port} \
-  --identityName 'charly'
+  --identityName 'charly' \
+  --noDirectConnections true \
+  --noWebRTCUpgrade false
 
 start_node tests/node.ts "${bob_log}"  \
   --port ${bob_port} \
   --identityName 'bob' \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
+  --noDirectConnections true \
+  --noWebRTCUpgrade false \
   --command "wait,8" \
   --command "dial,charly,${charly_port}" 
 
@@ -127,6 +131,8 @@ start_node tests/node.ts "${alice_log}" \
   --identityName 'alice' \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
+  --noDirectConnections true \
+  --noWebRTCUpgrade false \
   --command "wait,8" \
   --command "dial,charly,${charly_port}" \
   --command "msg,charly,bob,test"

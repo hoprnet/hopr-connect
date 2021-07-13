@@ -16,10 +16,12 @@ import LibP2P from 'libp2p'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
-async function startNode({ peerId, port, bootstrapAddress }: {
+async function startNode({ peerId, port, bootstrapAddress, noDirectConnections, noWebRTCUpgrade }: {
   peerId: PeerId,
   port: number,
   bootstrapAddress?: Multiaddr,
+  noDirectConnections: boolean,
+  noWebRTCUpgrade: boolean,
 }) {  
   console.log(`starting node, bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
@@ -38,8 +40,8 @@ async function startNode({ peerId, port, bootstrapAddress }: {
           bootstrapServers: bootstrapAddress ? [bootstrapAddress] : [],
           // simulates a NAT
           // DO NOT use this in production
-          __noDirectConnections: true,
-          __noWebRTCUpgrade: false
+          __noDirectConnections: noDirectConnections,
+          __noWebRTCUpgrade: noWebRTCUpgrade,
         }
       },
       peerDiscovery: {
@@ -152,6 +154,14 @@ async function main() {
       describe: 'identity name of a boostrap server',
       choices: ['alice', 'bob', 'charly', 'dave', 'ed'],
     })
+    .option('noDirectConnections', {
+      type: 'boolean',
+      default: false,
+    })
+    .option('noWebRTCUpgrade', {
+      type: 'boolean',
+      default: false,
+    })
     .option('command', {
       describe: 'example: --command.name dial --command.targetIdentityName charly',
       type: 'string',
@@ -168,7 +178,7 @@ async function main() {
   const peerId = await peerIdForIdentity(argv.identityName)
 
   console.log(`running node ${argv.identityName} on port ${argv.port}`)
-  const node = await startNode({ peerId, port: argv.port, bootstrapAddress })
+  const node = await startNode({ peerId, port: argv.port, bootstrapAddress, noDirectConnections: argv.noDirectConnections, noWebRTCUpgrade: argv.noWebRTCUpgrade })
   handleProtocol(node)
   
   if(argv.command) {
