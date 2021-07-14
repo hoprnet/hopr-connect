@@ -59,18 +59,19 @@ function start_node() {
     declare script=${3}
     declare rest_args=${@:4}
 
-    echo "${rest_args}"
-
     DEBUG=hopr-connect*,simple-peer \
     yarn dlx \
     ts-node \
         "${filename}" \
         > "${log_file}" \
         ${rest_args} \
-        --test "${script}" \
+        --script "${script}" \
         2>&1 &
     declare pid=$!
-    log "${filename} ${rest_args} started with PID ${pid}"
+    log "node started with PID ${pid}"
+    log "args: ${rest_args}"
+    log "script: "
+    log "${script}"
     echo ${pid}
 }
 
@@ -116,32 +117,57 @@ log "charly -> ${charly_log}"
 # run alice (client)
 start_node tests/node.ts \
     "${alice_log}" \
-    '[ {} ]' \
+    "[ {
+        'cmd': 'wait',
+        'delay': 8
+      },
+      {
+        'cmd': 'dial',
+        'targetIdentityName': 'charly',
+        'targetPort': ${charly_port}
+      },
+      {
+        'cmd': 'msg',
+        'relayIdentityName': 'charly',
+        'targetIdentityName': 'bob',
+        'msg': 'test'
+      }
+    ]" \
     --port ${alice_port} \
     --identityName 'alice' \
     --bootstrapPort ${charly_port} \
     --bootstrapIdentityName 'charly' \
     --noDirectConnections true \
     --noWebRTCUpgrade false \
-    --command "wait,8" \
-    --command "dial,charly,${charly_port}" \
-    --command "msg,charly,bob,test"     
-
+    
 # run bob (client)
 start_node tests/node.ts "${bob_log}"  \
-  '[ {} ]' \
+  "[ {
+        'cmd': 'wait',
+        'delay': 8
+      },
+      {
+        'cmd': 'dial',
+        'targetIdentityName': 'charly',
+        'targetPort': ${charly_port}
+      },
+      {
+        'cmd': 'msg',
+        'relayIdentityName': 'charly',
+        'targetIdentityName': 'bob',
+        'msg': 'test'
+      }
+    ]" \
   --port ${bob_port} \
   --identityName 'bob' \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false \
-  --command "wait,8" \
-  --command "dial,charly,${charly_port}" 
-
+  --noWebRTCUpgrade false \  
+  
 # run charly (bootstrap, relay)
 start_node tests/node.ts "${charly_log}" \
-  "1 2 3" \
+  "[]" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \
