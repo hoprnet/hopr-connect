@@ -179,7 +179,16 @@ start_node tests/node.ts "${charly_log}" \
   --noDirectConnections true \
   --noWebRTCUpgrade false
 
-wait_for_regex_in_file ${bob_log} "Received message <test>"
-wait_for_regex_in_file ${alice_log} "Received <Echoing <test>>"
+
+# wait till nodes finish communicating
+sleep 10
+
+expect_file_content "${alice_pipe}" \
+">bob: test
+<bob: echo: test"
+
+expect_file_content "${bob_pipe}" \
+"<alice: test
+>alice: echo: test"
 
 log "Test succesful"
