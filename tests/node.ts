@@ -156,11 +156,11 @@ async function main() {
     })
     .option('noDirectConnections', {
       type: 'boolean',
-      default: false,
+      demandOption: true,
     })
     .option('noWebRTCUpgrade', {
       type: 'boolean',
-      default: false,
+      demandOption: true,
     })
     .option('command', {
       describe: 'example: --command.name dial --command.targetIdentityName charly',

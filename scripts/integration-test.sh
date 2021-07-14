@@ -109,13 +109,19 @@ log "alice -> ${alice_log}"
 log "bob -> ${bob_log}"
 log "charly -> ${charly_log}"
 
-# run nodes
-start_node tests/node.ts "${charly_log}" \
-  --port ${charly_port} \
-  --identityName 'charly' \
+# run alice (client)
+start_node tests/node.ts "${alice_log}" \
+  --port ${alice_port} \
+  --identityName 'alice' \
+  --bootstrapPort ${charly_port} \
+  --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false
+  --noWebRTCUpgrade false \
+  --command "wait,8" \
+  --command "dial,charly,${charly_port}" \
+  --command "msg,charly,bob,test" 
 
+# run bob (client)
 start_node tests/node.ts "${bob_log}"  \
   --port ${bob_port} \
   --identityName 'bob' \
@@ -126,17 +132,12 @@ start_node tests/node.ts "${bob_log}"  \
   --command "wait,8" \
   --command "dial,charly,${charly_port}" 
 
-start_node tests/node.ts "${alice_log}" \
-  --port ${alice_port} \
-  --identityName 'alice' \
-  --bootstrapPort ${charly_port} \
-  --bootstrapIdentityName 'charly' \
+# run charly (bootstrap, relay)
+start_node tests/node.ts "${charly_log}" \
+  --port ${charly_port} \
+  --identityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false \
-  --command "wait,8" \
-  --command "dial,charly,${charly_port}" \
-  --command "msg,charly,bob,test"
-
+  --noWebRTCUpgrade false
 
 wait_for_regex_in_file ${bob_log} "Received message <test>"
 wait_for_regex_in_file ${alice_log} "Received <Echoing <test>>"
