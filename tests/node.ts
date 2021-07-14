@@ -79,57 +79,67 @@ function handleProtocol(node: LibP2P) {
   })
 }
 
-async function executeCommands({ node, cmds }: { node: LibP2P, cmds: string[] }) {
-  for(const cmdString of cmds) {
-    const tokens = cmdString.split(',')
-    const cmd = tokens[0]
-    switch(cmd) {
+type CmdDef = {
+  cmd: 'wait'
+  waitForSecs: number
+} | {
+  cmd: 'dial',
+  targetIdentityName: string,
+  targetPort: number,
+} | {
+  cmd: 'msg',
+  msg: string,
+  targetIdentityName: string,
+  relayIdentityName: string,
+}
+
+async function executeCommands({ node, cmds }: { node: LibP2P, cmds: CmdDef[] }) {
+  for(const cmdDef of cmds) {
+    switch(cmdDef.cmd) {
       case 'wait':
       {
-        const waitForSecs = parseFloat(tokens[1])
-        console.log(`waiting ${waitForSecs} secs`)
-        await new Promise((resolve) => setTimeout(resolve, durations.seconds(waitForSecs)))
+        console.log(`waiting ${cmdDef.waitForSecs} secs`)
+        await new Promise((resolve) => setTimeout(resolve, durations.seconds(cmdDef.waitForSecs)))
         console.log(`finished waiting`)
         break
       }
       case 'dial': 
       {
-        const targetIdentityName = tokens[1]
-        const targetPort = parseInt(tokens[2])
-        const targetPeerId = await peerIdForIdentity(targetIdentityName)
-        const targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${targetPort}/p2p/${targetPeerId.toB58String()}`)
-        console.log(`dialing ${targetIdentityName}`)
+        const targetPeerId = await peerIdForIdentity(cmdDef.targetIdentityName)
+        const targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${cmdDef.targetPort}/p2p/${targetPeerId.toB58String()}`)
+        console.log(`dialing ${cmdDef.targetIdentityName}`)
         await node.dial(targetAddress)
         console.log(`dialed`)
         break
       }
       case 'msg':
       {
-        const relayIdentityName = tokens[1]
-        const targetIdentityName = tokens[2]
-        const msg = tokens[3]
-        
-        const targetPeerId = await peerIdForIdentity(targetIdentityName)
-        const relayPeerId = await peerIdForIdentity(relayIdentityName)
+        const targetPeerId = await peerIdForIdentity(cmdDef.targetIdentityName)
+        const relayPeerId = await peerIdForIdentity(cmdDef.relayIdentityName)
         //@ts-ignore
         let conn: Handler
 
-        console.log(`msg: dialing ${targetIdentityName} though relay ${relayIdentityName}`)
+        console.log(`msg: dialing ${cmdDef.targetIdentityName} though relay ${cmdDef.relayIdentityName}`)
         conn = await node.dialProtocol(
           new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
           TEST_PROTOCOL
         )
-        console.log(`piping msg: ${msg}`)
+        console.log(`piping msg: ${cmdDef.msg}`)
         
-        await pipe([new TextEncoder().encode(msg)], conn.stream, async (source: Stream['source']) => {
+        await pipe([new TextEncoder().encode(cmdDef.msg)], conn.stream, async (source: Stream['source']) => {
           for await (const msg of source) {
             const decoded = new TextDecoder().decode(msg.slice())
 
             console.log(`Received <${decoded}>`)
           }
         })  
-        console.log(`sent msg`)               
-     }
+        console.log(`sent msg`) 
+        break              
+      }
+      default: 
+      {
+        throw new Error(`unknown cmd: ${cmdDef}`)
+      }
     } 
   }
 }
@@ -166,14 +176,15 @@ async function main() {
       describe: 'example: --command.name dial --command.targetIdentityName charly',
       type: 'string',
     })
-    .option('script', {})
+    .option('script', {
+      type: 'string',
+      demandOption: true,
+    })
     .coerce({
       script: input => JSON.parse(input.replace(/'/g, '"')) 
     })
     .parseSync()
 
-  console.log(argv.script)
-  
   let bootstrapAddress: Multiaddr | undefined
   
   if(argv.bootstrapPort != null && argv.bootstrapIdentityName != null) {
@@ -186,9 +197,7 @@ async function main() {
   const node = await startNode({ peerId, port: argv.port, bootstrapAddress, noDirectConnections: argv.noDirectConnections, noWebRTCUpgrade: argv.noWebRTCUpgrade })
   handleProtocol(node)
   
-  if(argv.command) {
-    await executeCommands({ node, cmds: [argv.command].flat() })
-  }  
+  await executeCommands({ node, cmds: argv.script })
 }
 
 main()
