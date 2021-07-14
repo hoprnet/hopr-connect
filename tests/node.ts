@@ -32,11 +32,11 @@ function createEchoReplier(remoteIdentityname: string, pipeFileStream?: WriteStr
       for await (const encodedMsg of source) {
         const decodedMsg = decodeMsg(encodedMsg.slice())
         const replyMsg = `echo: ${decodedMsg}`
-        
+
         console.log(`received message '${decodedMsg}' from ${remoteIdentityname}`)
         console.log(`replied with ${replyMsg}`)
 
-        if(pipeFileStream) {
+        if (pipeFileStream) {
           pipeFileStream.write(`<${remoteIdentityname}: ${decodedMsg}\n`)
           pipeFileStream.write(`>${remoteIdentityname}: ${replyMsg}\n`)
         }
@@ -53,8 +53,8 @@ function createDeadEnd(remoteIdentityname: string, pipeFileStream?: WriteStream)
       console.log(`received message '${decodedMsg}' from ${remoteIdentityname}`)
       console.log(`didn't reply`)
 
-      if(pipeFileStream) {
-        pipeFileStream.write(`<${remoteIdentityname}: ${decodedMsg}\n`)        
+      if (pipeFileStream) {
+        pipeFileStream.write(`<${remoteIdentityname}: ${decodedMsg}\n`)
       }
     }
   }
@@ -66,7 +66,7 @@ async function startNode({
   bootstrapAddress,
   noDirectConnections,
   noWebRTCUpgrade,
-  pipeFileStream,
+  pipeFileStream
 }: {
   peerId: PeerId
   port: number
@@ -107,18 +107,14 @@ async function startNode({
   })
 
   async function identityNameForConnection(connection?: Connection): Promise<string> {
-    if(!connection) {
+    if (!connection) {
       return 'unknown'
     }
     return identityFromPeerId(connection.remotePeer)
   }
 
-  node.handle(TEST_PROTOCOL, async ({ connection, stream }: { connection?: Connection, stream: Stream }) => {
-    pipe(
-      stream.source,
-      createEchoReplier(await identityNameForConnection(connection), pipeFileStream),
-      stream.sink
-    )
+  node.handle(TEST_PROTOCOL, async ({ connection, stream }: { connection?: Connection; stream: Stream }) => {
+    pipe(stream.source, createEchoReplier(await identityNameForConnection(connection), pipeFileStream), stream.sink)
   })
 
   await node.start()
@@ -143,7 +139,15 @@ type CmdDef =
       relayIdentityName: string
     }
 
-async function executeCommands({ node, cmds, pipeFileStream }: { node: LibP2P; cmds: CmdDef[], pipeFileStream?: WriteStream }) {
+async function executeCommands({
+  node,
+  cmds,
+  pipeFileStream
+}: {
+  node: LibP2P
+  cmds: CmdDef[]
+  pipeFileStream?: WriteStream
+}) {
   for (const cmdDef of cmds) {
     switch (cmdDef.cmd) {
       case 'wait': {
@@ -163,7 +167,7 @@ async function executeCommands({ node, cmds, pipeFileStream }: { node: LibP2P; c
       case 'msg': {
         const targetPeerId = await peerIdForIdentity(cmdDef.targetIdentityName)
         const relayPeerId = await peerIdForIdentity(cmdDef.relayIdentityName)
-        
+
         console.log(`msg: dialing ${cmdDef.targetIdentityName} though relay ${cmdDef.relayIdentityName}`)
         const { stream } = await node.dialProtocol(
           new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
@@ -172,14 +176,10 @@ async function executeCommands({ node, cmds, pipeFileStream }: { node: LibP2P; c
         console.log(`sending msg '${cmdDef.msg}'`)
 
         const encodedMsg = encodeMsg(cmdDef.msg)
-        if(pipeFileStream) {
+        if (pipeFileStream) {
           pipeFileStream.write(`>${cmdDef.targetIdentityName}: ${cmdDef.msg}\n`)
         }
-        await pipe(
-          [encodedMsg], 
-          stream, 
-          createDeadEnd(cmdDef.targetIdentityName, pipeFileStream),
-        )
+        await pipe([encodedMsg], stream, createDeadEnd(cmdDef.targetIdentityName, pipeFileStream))
         console.log(`sent ok`)
         break
       }
@@ -227,7 +227,7 @@ async function main() {
       demandOption: true
     })
     .option('pipeFile', {
-      type: 'string',
+      type: 'string'
     })
     .coerce({
       script: (input) => JSON.parse(input.replace(/'/g, '"'))
@@ -243,7 +243,7 @@ async function main() {
   const peerId = await peerIdForIdentity(argv.identityName)
 
   let pipeFileStream: WriteStream | undefined
-  if(argv.pipeFile) {
+  if (argv.pipeFile) {
     pipeFileStream = fs.createWriteStream(argv.pipeFile)
   }
 
@@ -254,7 +254,7 @@ async function main() {
     bootstrapAddress,
     noDirectConnections: argv.noDirectConnections,
     noWebRTCUpgrade: argv.noWebRTCUpgrade,
-    pipeFileStream,
+    pipeFileStream
   })
 
   await executeCommands({ node, cmds: argv.script, pipeFileStream })
