@@ -54,12 +54,6 @@ async function startNode({ peerId, port, bootstrapAddress, noDirectConnections, 
     }
   })
 
-  await node.start()
-  console.log(`node started`)
-  return node
-}
-
-function handleProtocol(node: LibP2P) {
   node.handle(TEST_PROTOCOL, (struct: Handler) => {
     pipe(
       struct.stream.source,
@@ -77,6 +71,10 @@ function handleProtocol(node: LibP2P) {
       struct.stream.sink
     )
   })
+
+  await node.start()
+  console.log(`node started`)
+  return node
 }
 
 type CmdDef = {
@@ -195,7 +193,6 @@ async function main() {
 
   console.log(`running node ${argv.identityName} on port ${argv.port}`)
   const node = await startNode({ peerId, port: argv.port, bootstrapAddress, noDirectConnections: argv.noDirectConnections, noWebRTCUpgrade: argv.noWebRTCUpgrade })
-  handleProtocol(node)
   
   await executeCommands({ node, cmds: argv.script })
 }
