@@ -8,8 +8,8 @@ Therefore it is for the moment necessary to test `hopr-connect` with multiple pr
 
 Test setup:
 
-- charly: a bootstrap server and a relay (first node that will help as a signalling server to connect all subsequent nodes)
-- 2 clients (alice & bob, using charly as a bootstrap and relay)
+- Charly: a bootstrap server and a relay (first node that will help as a signalling server to connect all subsequent nodes)
+- Alice & Bob: 2 clients using Charly as a bootstrap and relay
 
 The clients will use the bootstrap server to determine their own "public" IPv4 addresses. The bootstrap server itself will use external and publicly available bootstrap servers to determine its own public IPv4 address.
 
