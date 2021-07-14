@@ -66,11 +66,12 @@ async function startNode({
       (source: Stream['source']) => {
         return (async function* () {
           for await (const msg of source) {
+            console.log(msg)
             const decoded = new TextDecoder().decode(msg.slice())
 
             console.log(`Received message <${decoded}>`)
 
-            yield new TextEncoder().encode(`Echoing <${decoded}>`)
+            yield encodeText(`Echoing <${decoded}>`)
           }
         })()
       },
@@ -100,6 +101,10 @@ type CmdDef =
       relayIdentityName: string
     }
 
+function encodeText(msg: string): Uint8Array {
+  return new TextEncoder().encode(msg)
+}
+
 async function executeCommands({ node, cmds }: { node: LibP2P; cmds: CmdDef[] }) {
   for (const cmdDef of cmds) {
     switch (cmdDef.cmd) {
@@ -128,16 +133,21 @@ async function executeCommands({ node, cmds }: { node: LibP2P; cmds: CmdDef[] })
           new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
           TEST_PROTOCOL
         )
-        console.log(`piping msg: ${cmdDef.msg}`)
+        console.log(`sending msg '${cmdDef.msg}'`)
 
-        await pipe([new TextEncoder().encode(cmdDef.msg)], conn.stream, async (source: Stream['source']) => {
-          for await (const msg of source) {
-            const decoded = new TextDecoder().decode(msg.slice())
+        const encodedMsg = encodeText(cmdDef.msg)
+        await pipe(
+          [encodedMsg], 
+          conn.stream, 
+          async (source: Stream['source']) => {
+            for await (const msg of source) {
+              const decoded = new TextDecoder().decode(msg.slice())
 
-            console.log(`Received <${decoded}>`)
+              console.log(`Received <${decoded}>`)
+            }
           }
-        })
-        console.log(`sent msg`)
+        )
+        console.log(`sent ok`)
         break
       }
       default: {
@@ -182,6 +192,9 @@ async function main() {
     .option('script', {
       type: 'string',
       demandOption: true
+    })
+    .option('pipeFile', {
+      type: 'string',
     })
     .coerce({
       script: (input) => JSON.parse(input.replace(/'/g, '"'))
