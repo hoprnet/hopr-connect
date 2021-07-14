@@ -56,7 +56,10 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 function start_node() {
     declare filename=${1}
     declare log_file=${2}
-    declare rest_args=${@:3}
+    declare script=${3}
+    declare rest_args=${@:4}
+
+    echo "${rest_args}"
 
     DEBUG=hopr-connect*,simple-peer \
     yarn dlx \
@@ -64,6 +67,7 @@ function start_node() {
         "${filename}" \
         > "${log_file}" \
         ${rest_args} \
+        --test "${script}" \
         2>&1 &
     declare pid=$!
     log "${filename} ${rest_args} started with PID ${pid}"
@@ -110,19 +114,22 @@ log "bob -> ${bob_log}"
 log "charly -> ${charly_log}"
 
 # run alice (client)
-start_node tests/node.ts "${alice_log}" \
-  --port ${alice_port} \
-  --identityName 'alice' \
-  --bootstrapPort ${charly_port} \
-  --bootstrapIdentityName 'charly' \
-  --noDirectConnections true \
-  --noWebRTCUpgrade false \
-  --command "wait,8" \
-  --command "dial,charly,${charly_port}" \
-  --command "msg,charly,bob,test" 
+start_node tests/node.ts \
+    "${alice_log}" \
+    '[ {} ]' \
+    --port ${alice_port} \
+    --identityName 'alice' \
+    --bootstrapPort ${charly_port} \
+    --bootstrapIdentityName 'charly' \
+    --noDirectConnections true \
+    --noWebRTCUpgrade false \
+    --command "wait,8" \
+    --command "dial,charly,${charly_port}" \
+    --command "msg,charly,bob,test"     
 
 # run bob (client)
 start_node tests/node.ts "${bob_log}"  \
+  '[ {} ]' \
   --port ${bob_port} \
   --identityName 'bob' \
   --bootstrapPort ${charly_port} \
@@ -134,6 +141,7 @@ start_node tests/node.ts "${bob_log}"  \
 
 # run charly (bootstrap, relay)
 start_node tests/node.ts "${charly_log}" \
+  "1 2 3" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \

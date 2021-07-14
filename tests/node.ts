@@ -166,9 +166,10 @@ async function main() {
       describe: 'example: --command.name dial --command.targetIdentityName charly',
       type: 'string',
     })
+    .option('test', {})
     .parseSync()
 
-  
+  console.log(argv.test)
   let bootstrapAddress: Multiaddr | undefined
   
   if(argv.bootstrapPort != null && argv.bootstrapIdentityName != null) {
