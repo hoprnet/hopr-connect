@@ -1,6 +1,7 @@
 import libp2p from 'libp2p'
-import type { Handler, Stream } from 'libp2p'
+import type { Handler, Stream, Connection } from 'libp2p'
 import { durations } from '@hoprnet/hopr-utils'
+import fs from 'fs'
 
 import { NOISE } from 'libp2p-noise'
 
@@ -10,22 +11,32 @@ import { HoprConnect } from '../src'
 import { Multiaddr } from 'multiaddr'
 import pipe from 'it-pipe'
 import yargs from 'yargs/yargs'
-import { peerIdForIdentity } from './util'
+import { peerIdForIdentity, identityFromPeerId } from './identities'
 import PeerId from 'peer-id'
 import LibP2P from 'libp2p'
+import { WriteStream } from 'node:fs'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
-function pipeEchoReplier(source: Stream['source']) {
-  return (async function* () {
-    for await (const encodedMsg of source) {
-      const decoded = decodeMsg(encodedMsg.slice())
-
-      console.log(`Received message <${decoded}>`)
-
-      yield encodeMsg(`Echoing <${decoded}>`)
-    }
-  })()
+function createEchoReplier(connection?: Connection, pipeFileStream?: WriteStream) {
+  return (source: Stream['source']) => {
+    return (async function* () {
+      for await (const encodedMsg of source) {
+        const decodedMsg = decodeMsg(encodedMsg.slice())
+        let remoteIdentityName = 'unknown'
+        if(connection) {
+          remoteIdentityName = await identityFromPeerId(connection.remotePeer)
+        }        
+        console.log(`received message '${decodedMsg}' from ${remoteIdentityName}`)
+        const replyMsg = `echo: ${decodedMsg}`
+        if(pipeFileStream) {
+          pipeFileStream.write(`<${remoteIdentityName}: ${decodedMsg}`)
+          pipeFileStream.write(`>${remoteIdentityName}: ${replyMsg}`)
+        }
+        yield encodeMsg(replyMsg)
+      }
+    })()
+  }
 }
 
 async function pipeLogger(source: Stream['source']) {
@@ -40,13 +51,15 @@ async function startNode({
   port,
   bootstrapAddress,
   noDirectConnections,
-  noWebRTCUpgrade
+  noWebRTCUpgrade,
+  pipeFileStream,
 }: {
   peerId: PeerId
   port: number
   bootstrapAddress?: Multiaddr
   noDirectConnections: boolean
   noWebRTCUpgrade: boolean
+  pipeFileStream?: WriteStream
 }) {
   console.log(`starting node, bootstrap address ${bootstrapAddress}`)
   const node = await libp2p.create({
@@ -82,7 +95,7 @@ async function startNode({
   node.handle(TEST_PROTOCOL, (struct: Handler) => {
     pipe(
       struct.stream.source,
-      pipeEchoReplier,
+      createEchoReplier(struct.connection, pipeFileStream),
       struct.stream.sink
     )
   })
@@ -215,13 +228,19 @@ async function main() {
   }
   const peerId = await peerIdForIdentity(argv.identityName)
 
+  let pipeFileStream: WriteStream | undefined
+  if(argv.pipeFile) {
+    pipeFileStream = fs.createWriteStream(argv.pipeFile)
+  }
+
   console.log(`running node ${argv.identityName} on port ${argv.port}`)
   const node = await startNode({
     peerId,
     port: argv.port,
     bootstrapAddress,
     noDirectConnections: argv.noDirectConnections,
-    noWebRTCUpgrade: argv.noWebRTCUpgrade
+    noWebRTCUpgrade: argv.noWebRTCUpgrade,
+    pipeFileStream,
   })
 
   await executeCommands({ node, cmds: argv.script })
