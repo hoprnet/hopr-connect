@@ -36,8 +36,8 @@ declare charly_port=11092
 
 function free_ports {
     for port in ${alice_port} ${bob_port} ${charly_port}; do
-        if lsof -i ":${port}" -s TCP:LISTEN; then
-        lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
+        if lsof -i ":${port}" -s TCP:LISTEN > /dev/null; then
+          lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {} 
         fi
     done
 }
