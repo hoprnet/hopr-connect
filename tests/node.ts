@@ -65,13 +65,12 @@ async function startNode({
       struct.stream.source,
       (source: Stream['source']) => {
         return (async function* () {
-          for await (const msg of source) {
-            console.log(msg)
-            const decoded = new TextDecoder().decode(msg.slice())
+          for await (const encodedMsg of source) {
+            const decoded = decodeMsg(encodedMsg.slice())
 
             console.log(`Received message <${decoded}>`)
 
-            yield encodeText(`Echoing <${decoded}>`)
+            yield encodeMsg(`Echoing <${decoded}>`)
           }
         })()
       },
@@ -101,8 +100,12 @@ type CmdDef =
       relayIdentityName: string
     }
 
-function encodeText(msg: string): Uint8Array {
+function encodeMsg(msg: string): Uint8Array {
   return new TextEncoder().encode(msg)
+}
+
+function decodeMsg(encodedMsg: Uint8Array): string {
+  return new TextDecoder().decode(encodedMsg)
 }
 
 async function executeCommands({ node, cmds }: { node: LibP2P; cmds: CmdDef[] }) {
@@ -135,15 +138,14 @@ async function executeCommands({ node, cmds }: { node: LibP2P; cmds: CmdDef[] })
         )
         console.log(`sending msg '${cmdDef.msg}'`)
 
-        const encodedMsg = encodeText(cmdDef.msg)
+        const encodedMsg = encodeMsg(cmdDef.msg)
         await pipe(
           [encodedMsg], 
           conn.stream, 
           async (source: Stream['source']) => {
-            for await (const msg of source) {
-              const decoded = new TextDecoder().decode(msg.slice())
-
-              console.log(`Received <${decoded}>`)
+            for await (const encodedMsg of source) {
+              const decodedMsg = decodeMsg(encodedMsg.slice())
+              console.log(`Received <${decodedMsg}>`)
             }
           }
         )
