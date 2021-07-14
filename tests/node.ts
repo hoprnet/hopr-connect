@@ -1,5 +1,5 @@
 import libp2p from 'libp2p'
-import type { Handler, Stream, Connection } from 'libp2p'
+import type { Stream, Connection } from 'libp2p'
 import { durations } from '@hoprnet/hopr-utils'
 import fs from 'fs'
 
@@ -26,34 +26,19 @@ function decodeMsg(encodedMsg: Uint8Array): string {
   return new TextDecoder().decode(encodedMsg)
 }
 
-async function getMsgAndSender({ connection, encodedMsg }: {
-  connection?: Connection,
-  encodedMsg: Uint8Array,
-}): Promise<{
-  senderIdentityName: string,
-  decodedMsg: string
-}> {
-  const decodedMsg = decodeMsg(encodedMsg.slice())
-  let senderIdentityName = 'unknown'
-  if(connection) {
-    senderIdentityName = await identityFromPeerId(connection.remotePeer)
-  }        
-  return { senderIdentityName, decodedMsg }
-}
-
-function createEchoReplier(connection?: Connection, pipeFileStream?: WriteStream) {
+function createEchoReplier(remoteIdentityname: string, pipeFileStream?: WriteStream) {
   return (source: Stream['source']) => {
     return (async function* () {
       for await (const encodedMsg of source) {
-        const { decodedMsg, senderIdentityName } = await getMsgAndSender({ connection, encodedMsg: encodedMsg.slice() })
+        const decodedMsg = decodeMsg(encodedMsg.slice())
         const replyMsg = `echo: ${decodedMsg}`
         
-        console.log(`received message '${decodedMsg}' from ${senderIdentityName}`)
+        console.log(`received message '${decodedMsg}' from ${remoteIdentityname}`)
         console.log(`replied with ${replyMsg}`)
 
         if(pipeFileStream) {
-          pipeFileStream.write(`<${senderIdentityName}: ${decodedMsg}\n`)
-          pipeFileStream.write(`>${senderIdentityName}: ${replyMsg}\n`)
+          pipeFileStream.write(`<${remoteIdentityname}: ${decodedMsg}\n`)
+          pipeFileStream.write(`>${remoteIdentityname}: ${replyMsg}\n`)
         }
         yield encodeMsg(replyMsg)
       }
@@ -61,15 +46,15 @@ function createEchoReplier(connection?: Connection, pipeFileStream?: WriteStream
   }
 }
 
-function createDeadEnd(connection?: Connection, pipeFileStream?: WriteStream) {
+function createDeadEnd(remoteIdentityname: string, pipeFileStream?: WriteStream) {
   return async (source: Stream['source']) => {
     for await (const encodedMsg of source) {
-      const { decodedMsg, senderIdentityName } = await getMsgAndSender({ connection, encodedMsg: encodedMsg.slice() })
-      console.log(`received message '${decodedMsg}' from ${senderIdentityName}`)
+      const decodedMsg = decodeMsg(encodedMsg.slice())
+      console.log(`received message '${decodedMsg}' from ${remoteIdentityname}`)
       console.log(`didn't reply`)
 
       if(pipeFileStream) {
-        pipeFileStream.write(`<${senderIdentityName}: ${decodedMsg}\n`)        
+        pipeFileStream.write(`<${remoteIdentityname}: ${decodedMsg}\n`)        
       }
     }
   }
@@ -121,11 +106,18 @@ async function startNode({
     }
   })
 
-  node.handle(TEST_PROTOCOL, (struct: Handler) => {
+  async function identityNameForConnection(connection?: Connection): Promise<string> {
+    if(!connection) {
+      return 'unknown'
+    }
+    return identityFromPeerId(connection.remotePeer)
+  }
+
+  node.handle(TEST_PROTOCOL, async ({ connection, stream }: { connection?: Connection, stream: Stream }) => {
     pipe(
-      struct.stream.source,
-      createEchoReplier(struct.connection, pipeFileStream),
-      struct.stream.sink
+      stream.source,
+      createEchoReplier(await identityNameForConnection(connection), pipeFileStream),
+      stream.sink
     )
   })
 
@@ -173,7 +165,7 @@ async function executeCommands({ node, cmds, pipeFileStream }: { node: LibP2P; c
         const relayPeerId = await peerIdForIdentity(cmdDef.relayIdentityName)
         
         console.log(`msg: dialing ${cmdDef.targetIdentityName} though relay ${cmdDef.relayIdentityName}`)
-        const { connection, stream } = await node.dialProtocol(
+        const { stream } = await node.dialProtocol(
           new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
           TEST_PROTOCOL
         )
@@ -186,7 +178,7 @@ async function executeCommands({ node, cmds, pipeFileStream }: { node: LibP2P; c
         await pipe(
           [encodedMsg], 
           stream, 
-          createDeadEnd(connection, pipeFileStream),
+          createDeadEnd(cmdDef.targetIdentityName, pipeFileStream),
         )
         console.log(`sent ok`)
         break

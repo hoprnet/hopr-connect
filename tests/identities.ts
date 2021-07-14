@@ -49,9 +49,10 @@ export async function peerIdForIdentity(identityName: string): Promise<PeerId> {
 }
 
 export async function identityFromPeerId(peerIdToCheck: PeerId): Promise<string> {
+  console.log(peerIdToCheck)
   for(const identityName of [ 'alice', 'bob', 'charly', 'dave', 'ed']) {
     const peerId = await peerIdForIdentity(identityName)
-    if(peerId === peerIdToCheck) {
+    if(peerId.toB58String() === peerIdToCheck.toB58String()) {
       return identityName
     }
   }
