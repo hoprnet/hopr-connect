@@ -16,6 +16,25 @@ import LibP2P from 'libp2p'
 
 const TEST_PROTOCOL = '/hopr-connect/test/0.0.1'
 
+function pipeEchoReplier(source: Stream['source']) {
+  return (async function* () {
+    for await (const encodedMsg of source) {
+      const decoded = decodeMsg(encodedMsg.slice())
+
+      console.log(`Received message <${decoded}>`)
+
+      yield encodeMsg(`Echoing <${decoded}>`)
+    }
+  })()
+}
+
+async function pipeLogger(source: Stream['source']) {
+  for await (const encodedMsg of source) {
+    const decodedMsg = decodeMsg(encodedMsg.slice())
+    console.log(`Received <${decodedMsg}>`)
+  }
+}
+
 async function startNode({
   peerId,
   port,
@@ -63,17 +82,7 @@ async function startNode({
   node.handle(TEST_PROTOCOL, (struct: Handler) => {
     pipe(
       struct.stream.source,
-      (source: Stream['source']) => {
-        return (async function* () {
-          for await (const encodedMsg of source) {
-            const decoded = decodeMsg(encodedMsg.slice())
-
-            console.log(`Received message <${decoded}>`)
-
-            yield encodeMsg(`Echoing <${decoded}>`)
-          }
-        })()
-      },
+      pipeEchoReplier,
       struct.stream.sink
     )
   })
@@ -142,12 +151,7 @@ async function executeCommands({ node, cmds }: { node: LibP2P; cmds: CmdDef[] })
         await pipe(
           [encodedMsg], 
           conn.stream, 
-          async (source: Stream['source']) => {
-            for await (const encodedMsg of source) {
-              const decodedMsg = decodeMsg(encodedMsg.slice())
-              console.log(`Received <${decodedMsg}>`)
-            }
-          }
+          pipeLogger,
         )
         console.log(`sent ok`)
         break
