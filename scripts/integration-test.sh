@@ -176,7 +176,8 @@ start_node tests/node.ts "${charly_log}" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false
+  --noWebRTCUpgrade false \
+  --maxRelayedConnections 1
 
 
 # run dave (client, charly should be out of relay capacity)

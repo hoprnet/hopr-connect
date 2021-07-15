@@ -26,7 +26,7 @@ class RelayState {
     this.relayedConnections = new Map()
   }
 
-  count() {
+  relayedConnectionCount() {
     return this.relayedConnections.size
   }
 
