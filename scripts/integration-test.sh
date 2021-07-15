@@ -175,7 +175,7 @@ start_node tests/node.ts "${charly_log}" \
 
 
 # wait till nodes finish communicating
-sleep 10
+sleep 20
 
 expect_file_content "${alice_pipe}" \
 ">bob: test
