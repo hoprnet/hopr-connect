@@ -48,7 +48,7 @@ class HoprConnect implements Transport {
     bootstrapServers?: Multiaddr[] | Multiaddr
     interface?: string
     __noDirectConnections?: boolean
-    __noWebRTCUpgrade?: boolean,
+    __noWebRTCUpgrade?: boolean
     maxRelayedConnections?: number
   }) {
     if (!opts.upgrader) {
@@ -127,7 +127,7 @@ class HoprConnect implements Transport {
       this.connHandler,
       this._webRTCUpgrader,
       opts.__noWebRTCUpgrade,
-      opts.maxRelayedConnections,
+      opts.maxRelayedConnections
     )
 
     // Used for testing
