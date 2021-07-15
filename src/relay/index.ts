@@ -5,6 +5,7 @@
 import debug from 'debug'
 
 const DEBUG_PREFIX = 'hopr-connect:relay'
+const DEFAULT_MAX_CONNECTIONS = 10
 
 const log = debug(DEBUG_PREFIX)
 const error = debug(DEBUG_PREFIX.concat(':error'))
@@ -44,9 +45,9 @@ class Relay {
     private upgrader: Upgrader,
     private connHandler: ConnHandler | undefined,
     private webRTCUpgrader?: WebRTCUpgrader,
-    private __noWebRTCUpgrade?: boolean
+    private __noWebRTCUpgrade?: boolean,
+    private maxConnections: number = DEFAULT_MAX_CONNECTIONS
   ) {
-    console.trace()
     this.relayState = new RelayState()
 
     this.handle(DELIVERY, this.handleIncoming.bind(this))
@@ -60,9 +61,9 @@ class Relay {
       const shaker = new RelayHandshake(stream)
 
       log(`handling relay request from ${connection.remotePeer}`)
-      log(`relayed connection count: ${this.relayState.count()}`)
+      log(`relayed connection count: ${this.relayState.relayedConnectionCount()}`)
 
-      if(this.relayState.count() > 0) {
+      if(this.relayState.relayedConnectionCount() >= this.maxConnections) {
         error(`relay full`)
         shaker.reject()
       } else 
