@@ -59,9 +59,14 @@ class Relay {
 
       const shaker = new RelayHandshake(stream)
 
+      log(`handling relay request from ${connection.remotePeer}`)
+      log(`relayed connection count: ${this.relayState.count()}`)
+
       if(this.relayState.count() > 0) {
+        error(`relay full`)
         shaker.reject()
-      } else {      
+      } else 
+      {      
         shaker.negotiate(
           connection.remotePeer,
           (counterparty: PeerId) => this.contactCounterparty(counterparty),
