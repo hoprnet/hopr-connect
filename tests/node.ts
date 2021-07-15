@@ -208,8 +208,8 @@ async function main() {
   await executeCommands({ node, cmds: argv.script })
 }
 
-process.on('unhandledRejection', error => {
-  console.log('unhandledRejection', error);
+process.on('unhandledRejection', (error) => {
+  console.log('unhandledRejection', error)
   process.exit(1)
 })
 
