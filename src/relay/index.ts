@@ -59,7 +59,7 @@ class Relay {
 
       const shaker = new RelayHandshake(stream)
 
-      if(1+1===2) {
+      if(this.relayState.count() > 0) {
         shaker.reject()
       } else {      
         shaker.negotiate(
