@@ -180,7 +180,8 @@ start_node tests/node.ts "${charly_log}" \
   --maxRelayedConnections 1
 
 
-# run dave (client, charly should be out of relay capacity)
+# run dave (client)
+# dave is out of luck since charly cannot relay more than 1 connection and alice already opens a connection to bob
 start_node tests/node.ts "${dave_log}" \
   "[ {
         'cmd': 'wait',
