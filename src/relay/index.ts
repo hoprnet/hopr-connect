@@ -46,6 +46,7 @@ class Relay {
     private webRTCUpgrader?: WebRTCUpgrader,
     private __noWebRTCUpgrade?: boolean
   ) {
+    console.trace()
     this.relayState = new RelayState()
 
     this.handle(DELIVERY, this.handleIncoming.bind(this))
@@ -56,14 +57,20 @@ class Relay {
         return
       }
 
-      new RelayHandshake(stream).negotiate(
-        connection.remotePeer,
-        (counterparty: PeerId) => this.contactCounterparty(counterparty),
-        this.relayState.exists.bind(this.relayState),
-        this.relayState.isActive.bind(this.relayState),
-        this.relayState.updateExisting.bind(this.relayState),
-        this.relayState.createNew.bind(this.relayState)
-      )
+      const shaker = new RelayHandshake(stream)
+
+      if(1+1===2) {
+        shaker.reject()
+      } else {      
+        shaker.negotiate(
+          connection.remotePeer,
+          (counterparty: PeerId) => this.contactCounterparty(counterparty),
+          this.relayState.exists.bind(this.relayState),
+          this.relayState.isActive.bind(this.relayState),
+          this.relayState.updateExisting.bind(this.relayState),
+          this.relayState.createNew.bind(this.relayState)
+        )
+      }
     })
   }
 
