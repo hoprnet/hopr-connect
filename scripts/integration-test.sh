@@ -123,7 +123,7 @@ start_node tests/node.ts \
     "${alice_log}" \
     "[ {
         'cmd': 'wait',
-        'delay': 8
+        'waitForSecs': 8
       },
       {
         'cmd': 'dial',
@@ -149,7 +149,7 @@ start_node tests/node.ts \
 start_node tests/node.ts "${bob_log}"  \
   "[ {
         'cmd': 'wait',
-        'delay': 8
+        'waitForSecs': 8
       },
       {
         'cmd': 'dial',
