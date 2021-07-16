@@ -142,9 +142,9 @@ type CmdDef =
       relayIdentityName: string
     }
   | {
-    cmd: 'hangup'
-    targetIdentityName: string
-  }
+      cmd: 'hangup'
+      targetIdentityName: string
+    }
 
 async function executeCommands({
   node,
@@ -198,8 +198,7 @@ async function executeCommands({
         console.log(`sent ok`)
         break
       }
-      case 'hangup':
-      {
+      case 'hangup': {
         const targetPeerId = await peerIdForIdentity(cmdDef.targetIdentityName)
         console.log(`hanging up on ${cmdDef.targetIdentityName}`)
         await node.hangUp(targetPeerId)
