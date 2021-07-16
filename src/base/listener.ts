@@ -50,12 +50,50 @@ async function attemptClose(maConn: MultiaddrConnection) {
 
 type NodeEntry = {
   latency: number
-  peerId: string
+  peerId?: string
   multiAddr: Multiaddr
 }
 
 function latencyCompare(a: NodeEntry, b: NodeEntry) {
   return a.latency - b.latency
+}
+
+function removeNodeFromList(
+  nodeList: NodeEntry[],
+  maPeerId: string | null,
+  maTuples: ReturnType<Multiaddr['tuples']>
+): NodeEntry[] {
+  const result = []
+
+  for (const entry of nodeList) {
+    const tuples = entry.multiAddr.tuples()
+
+    // Check if same peerId -> duplicate
+    if (maPeerId != null && maPeerId === entry.peerId) {
+      continue
+    }
+
+    // Check if same address:port
+    if (
+      u8aEquals(maTuples[0][1] as Uint8Array, tuples[0][1] as Uint8Array) &&
+      u8aEquals(maTuples[1][1] as Uint8Array, tuples[1][1] as Uint8Array)
+    ) {
+      continue
+    }
+
+    result.push(entry)
+  }
+
+  return result
+}
+
+function isUsableRelay(tuples: ReturnType<Multiaddr['tuples']>, maPeerId: string | null, self: PeerId) {
+  return (
+    tuples[0].length >= 2 &&
+    tuples[0][0] == CODE_IP4 &&
+    [CODE_UDP, CODE_TCP].includes(tuples[1][0]) &&
+    self.toB58String() !== maPeerId
+  )
 }
 
 enum State {
@@ -140,51 +178,62 @@ class Listener extends EventEmitter implements InterfaceListener {
     initialNodes?.forEach(this.onNewRelay.bind(this))
 
     publicNodes?.on('addPublicNode', this.onNewRelay.bind(this))
+
+    publicNodes?.on('removePublicNode', this.onRemoveRelay.bind(this))
   }
 
-  async onNewRelay(ma: Multiaddr): Promise<void> {
+  /**
+   * Called once there is a new relay opportunity known
+   * @param ma Multiaddr of node that is added as a relay opportunity
+   */
+  private onNewRelay(ma: Multiaddr) {
     if (this.publicNodes.length > MAX_RELAYS_PER_NODE) {
       return
     }
 
     const tuples = ma.tuples()
-    const maPeerId = ma.getPeerId() as string
+    const maPeerId = ma.getPeerId()
 
     // Also try "TCP addresses" as we expect that node is listening on TCP *and* UDP
-    if (
-      tuples[0].length < 2 ||
-      tuples[0][0] != CODE_IP4 ||
-      ![CODE_UDP, CODE_TCP].includes(tuples[1][0]) ||
-      this.peerId.toB58String() === ma.getPeerId()
-    ) {
+    if (!isUsableRelay(tuples, maPeerId, this.peerId)) {
       verbose(`Dropping potential STUN ${ma.toString()} because format is invalid or equal to own address`)
       return
     }
 
+    if (this.state != State.LISTENING) {
+      once(this, 'listening').then(() => this.updatePublicNodes(ma, maPeerId, tuples))
+    } else {
+      setImmediate(() => this.updatePublicNodes(ma, maPeerId, tuples))
+    }
+  }
+
+  /**
+   * Called once a node is considered to be offline
+   * @param ma Multiaddr of node that is considered to be offline now
+   */
+  protected onRemoveRelay(ma: Multiaddr) {
+    const maPeerId = ma.getPeerId()
+    const tuples = ma.tuples()
+
+    if (maPeerId == null || !isUsableRelay(tuples, maPeerId, this.peerId)) {
+      return
+    }
+
+    this.publicNodes = removeNodeFromList(this.publicNodes, maPeerId, tuples)
+
+    this.addrs.relays = this.publicNodes.map(
+      (entry: NodeEntry) => new Multiaddr(`/p2p/${entry.peerId}/p2p-circuit/p2p/${this.peerId}`)
+    )
+  }
+
+  protected async updatePublicNodes(
+    ma: Multiaddr,
+    maPeerId: string | null,
+    tuples: ReturnType<Multiaddr['tuples']>
+  ): Promise<void> {
     // Get previously known nodes and filter all nodes that have
     // either the same address (ip:port) or the same peerId
-    const publicNodes = this.publicNodes.filter((entry: NodeEntry) => {
-      const maTuples = entry.multiAddr.tuples()
-
-      // Check if same peerId -> duplicate
-      if (maPeerId === entry.peerId) {
-        return false
-      }
-
-      // Check if same address:port
-      if (
-        u8aEquals(maTuples[0][1] as Uint8Array, tuples[0][1] as Uint8Array) &&
-        u8aEquals(maTuples[1][1] as Uint8Array, tuples[1][1] as Uint8Array)
-      ) {
-        return false
-      }
-
-      return true
-    })
-
-    if (this.state != State.LISTENING) {
-      await once(this, 'listening')
-    }
+    const publicNodes = removeNodeFromList(this.publicNodes, maPeerId, tuples)
 
     const abort = new AbortController()
     const timeout = setTimeout(abort.abort.bind(abort), RELAY_CONTACT_TIMEOUT)
@@ -205,8 +254,6 @@ class Listener extends EventEmitter implements InterfaceListener {
     )
 
     this.publicNodes = publicNodes.sort(latencyCompare)
-
-    this.emit(`_newNodeRegistered`, maPeerId)
   }
 
   /**
@@ -601,12 +648,20 @@ class Listener extends EventEmitter implements InterfaceListener {
 
   private async connectToRelay(
     relay: Multiaddr,
-    relayPeerId: string,
+    relayPeerId: string | null,
     opts?: { signal: AbortSignal }
   ): Promise<NodeEntry> {
     let latency: number
     let conn: Connection | undefined
     let maConn: MultiaddrConnection | undefined
+
+    const result = {
+      multiAddr: relay
+    } as NodeEntry
+
+    if (relayPeerId != null) {
+      result.peerId = relayPeerId
+    }
 
     const start = Date.now()
 
@@ -619,11 +674,9 @@ class Listener extends EventEmitter implements InterfaceListener {
     }
 
     if (maConn == undefined) {
-      return {
-        peerId: relayPeerId,
-        multiAddr: relay,
-        latency: -1
-      }
+      result.latency = -1
+
+      return result
     }
 
     try {
@@ -646,11 +699,9 @@ class Listener extends EventEmitter implements InterfaceListener {
     }
 
     if (conn == undefined) {
-      return {
-        peerId: relayPeerId,
-        multiAddr: relay,
-        latency: -1
-      }
+      result.latency = -1
+
+      return result
     }
 
     latency = Date.now() - start
@@ -661,11 +712,9 @@ class Listener extends EventEmitter implements InterfaceListener {
 
     this.emit('connection', conn)
 
-    return {
-      peerId: relayPeerId,
-      multiAddr: relay,
-      latency
-    }
+    result.latency = latency
+
+    return result
   }
 }
 
