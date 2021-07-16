@@ -366,6 +366,8 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
       yield Uint8Array.from([RelayPrefix.PAYLOAD, ...received.value.slice()])
     }
+    this.destroyed = true
+    this._destroyedPromise.resolve()
   }
 
   /**
