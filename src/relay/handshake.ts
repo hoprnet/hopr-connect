@@ -82,6 +82,11 @@ class RelayHandshake {
     this.shaker = handshake<StreamResult>(stream)
   }
 
+  /**
+   * Immediately rejects the relay handshake with the given reason
+   * @param reason one of RelayHandshakeMessage to send before termination
+   * @returns 
+   */
   async reject(reason: RelayHandshakeMessage) {
     this.shaker.write(Uint8Array.of(reason))
     this.shaker.rest()
