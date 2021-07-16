@@ -85,7 +85,7 @@ class RelayHandshake {
   /**
    * Immediately rejects the relay handshake with the given reason
    * @param reason one of RelayHandshakeMessage to send before termination
-   * @returns 
+   * @returns
    */
   async reject(reason: RelayHandshakeMessage) {
     this.shaker.write(Uint8Array.of(reason))
@@ -170,7 +170,7 @@ class RelayHandshake {
     createNew: InstanceType<typeof RelayState>['createNew']
   ): Promise<void> {
     log(`handling relay request`)
-    
+
     let chunk: StreamResult | undefined
 
     try {
