@@ -204,6 +204,7 @@ async function executeCommands({
         console.log(`hanging up on ${cmdDef.targetIdentityName}`)
         await node.hangUp(targetPeerId)
         console.log(`hanged up`)
+        break
       }
       default: {
         throw new Error(`unknown cmd: ${cmdDef}`)
