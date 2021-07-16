@@ -146,6 +146,10 @@ start_node tests/node.ts \
         'relayIdentityName': 'charly',
         'targetIdentityName': 'bob',
         'msg': 'test from alice'
+      },
+      { 
+        'cmd': 'hangup',
+        'targetIdentityName': 'bob'
       }
     ]" \
     --port ${alice_port} \
