@@ -170,7 +170,7 @@ class RelayHandshake {
     createNew: InstanceType<typeof RelayState>['createNew']
   ): Promise<void> {
     log(`handling relay request`)
-    console.trace()
+    
     let chunk: StreamResult | undefined
 
     try {
