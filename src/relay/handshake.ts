@@ -82,8 +82,8 @@ class RelayHandshake {
     this.shaker = handshake<StreamResult>(stream)
   }
 
-  async reject() {
-    this.shaker.write(Uint8Array.of(RelayHandshakeMessage.FAIL_RELAY_FULL))
+  async reject(reason: RelayHandshakeMessage) {
+    this.shaker.write(Uint8Array.of(reason))
     this.shaker.rest()
     return {
       success: false,
