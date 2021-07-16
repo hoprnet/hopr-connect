@@ -21,7 +21,7 @@ export enum RelayHandshakeMessage {
   FAIL_COULD_NOT_IDENTIFY_PEER,
   FAIL_INVALID_PUBLIC_KEY,
   FAIL_LOOPBACKS_ARE_NOT_ALLOWED,
-  FAIL_RELAY_FULL,
+  FAIL_RELAY_FULL
 }
 
 function handshakeMessageToString(handshakeMessage: RelayHandshakeMessage): string {
@@ -93,7 +93,7 @@ class RelayHandshake {
     return {
       success: false,
       code: 'FAIL'
-    } 
+    }
   }
 
   /**
