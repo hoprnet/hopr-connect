@@ -49,6 +49,7 @@ class HoprConnect implements Transport {
     interface?: string
     __noDirectConnections?: boolean
     __noWebRTCUpgrade?: boolean
+    maxRelayedConnections?: number
   }) {
     if (!opts.upgrader) {
       throw new Error('An upgrader must be provided. See https://github.com/libp2p/interface-transport#upgrader.')
@@ -125,7 +126,8 @@ class HoprConnect implements Transport {
       this._upgrader,
       this.connHandler,
       this._webRTCUpgrader,
-      opts.__noWebRTCUpgrade
+      opts.__noWebRTCUpgrade,
+      opts.maxRelayedConnections
     )
 
     // Used for testing
