@@ -39,6 +39,9 @@ declare charly_port=11092
 declare dave_log="${tmp}/hopr-connect-dave.log"
 declare dave_port=11093
 
+declare ed_log="${tmp}/hopr-connect-ed.log"
+declare ed_port=11094
+
 function free_ports {
     for port in ${alice_port} ${bob_port} ${charly_port} ${dave_port}; do
         if lsof -i ":${port}" -s TCP:LISTEN > /dev/null; then
@@ -104,14 +107,14 @@ free_ports
 
 # check ports are free
 
-for port in ${alice_port} ${bob_port} ${charly_port} ${dave_port}; do
+for port in ${alice_port} ${bob_port} ${charly_port} ${dave_port} ${ed_port}; do
   ensure_port_is_free ${port}
 done
 
 log "Test started"
 
 # remove logs
-for file in "${alice_log}" "${bob_log}" "${charly_log}" "${dave_log}" "${alice_pipe}" "${bob_pipe}"; do 
+for file in "${alice_log}" "${bob_log}" "${charly_log}" "${dave_log}" "${ed_port}" "${alice_pipe}" "${bob_pipe}"; do 
   rm -Rf ${file}
 done
 
@@ -121,14 +124,17 @@ log "bob logs -> ${bob_log}"
 log "bob msgs -> ${bob_pipe}"
 log "charly logs -> ${charly_log}"
 log "dave logs -> ${dave_log}"
+log "ed logs -> ${ed_log}"
 
 # run alice (client)
+# should be able to send 'test from alice' to bob through relay charly
+# should be ablt to get 'echo: test' back from bob
 start_node tests/node.ts \
     "${alice_log}" \
     "[ 
       {
         'cmd': 'wait',
-        'waitForSecs': 8
+        'waitForSecs': 2
       },
       {
         'cmd': 'dial',
@@ -139,7 +145,7 @@ start_node tests/node.ts \
         'cmd': 'msg',
         'relayIdentityName': 'charly',
         'targetIdentityName': 'bob',
-        'msg': 'test'
+        'msg': 'test from alice'
       }
     ]" \
     --port ${alice_port} \
@@ -151,10 +157,12 @@ start_node tests/node.ts \
     --noWebRTCUpgrade false \
     
 # run bob (client)
+# should be able to receive 'test' from alice through charly
+# should be able to reply with 'echo: test'
 start_node tests/node.ts "${bob_log}"  \
   "[ {
         'cmd': 'wait',
-        'waitForSecs': 8
+        'waitForSecs': 2
       },
       {
         'cmd': 'dial',
@@ -170,7 +178,9 @@ start_node tests/node.ts "${bob_log}"  \
   --noDirectConnections true \
   --noWebRTCUpgrade false \  
   
-# run charly (bootstrap, relay)
+# run charly
+# should able to serve as a bootstrap
+# should be able to relay 1 connection at a time
 start_node tests/node.ts "${charly_log}" \
   "[]" \
   --port ${charly_port} \
@@ -181,11 +191,11 @@ start_node tests/node.ts "${charly_log}" \
 
 
 # run dave (client)
-# dave is out of luck since charly cannot relay more than 1 connection and alice already opens a connection to bob
+# should try connecting to bob through relay charly and get RELAY_FULL error
 start_node tests/node.ts "${dave_log}" \
   "[ {
         'cmd': 'wait',
-        'waitForSecs': 9
+        'waitForSecs': 3
       },
       {
         'cmd': 'dial',
@@ -196,7 +206,7 @@ start_node tests/node.ts "${dave_log}" \
         'cmd': 'msg',
         'relayIdentityName': 'charly',
         'targetIdentityName': 'bob',
-        'msg': 'test'
+        'msg': 'test from dave'
       }
     ]" \
   --port ${dave_port} \
@@ -206,20 +216,49 @@ start_node tests/node.ts "${dave_log}" \
   --noDirectConnections true \
   --noWebRTCUpgrade false
 
+  # run ed (client)
+  # should be able to send 'test from ed' to bob through charly after alice finishes talking
+  start_node tests/node.ts "${ed_log}" \
+    "[ {
+          'cmd': 'wait',
+          'waitForSecs': 4
+        },
+        {
+          'cmd': 'dial',
+          'targetIdentityName': 'charly',
+          'targetPort': ${charly_port}
+        },
+        {
+          'cmd': 'msg',
+          'relayIdentityName': 'charly',
+          'targetIdentityName': 'bob',
+          'msg': 'test from ed'
+        }
+      ]" \
+    --port ${ed_port} \
+    --identityName 'ed' \
+    --bootstrapPort ${charly_port} \
+    --bootstrapIdentityName 'charly' \
+    --noDirectConnections true \
+    --noWebRTCUpgrade false
+
 
 # wait till nodes finish communicating
 wait_for_regex_in_file "${alice_log}" "all tasks executed"
 wait_for_regex_in_file "${bob_log}" "all tasks executed"
 wait_for_regex_in_file "${charly_log}" "all tasks executed"
+wait_for_regex_in_file "${ed_log}" "all tasks executed"
 wait_for_regex_in_file "${dave_log}" "Answer was: <FAIL_RELAY_FULL>"
 wait_for_regex_in_file "${dave_log}" "dialProtocol to bob failed"
 
 expect_file_content "${alice_pipe}" \
-">bob: test
-<bob: echo: test"
+">bob: test from alice
+<bob: echo: test from alice"
 
 expect_file_content "${bob_pipe}" \
-"<alice: test
->alice: echo: test"
+"<alice: test from alice
+>alice: echo: test from alice
+<ed: test from ed
+>ed: echo: test from ed"
 
 log "Test succesful"
