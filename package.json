@@ -41,7 +41,7 @@
     "multiaddr": "~9.0.2",
     "multihashes": "^4.0.2",
     "p-defer": "3",
-    "peer-id": "~0.14.8",
+    "peer-id": "~0.15.1",
     "simple-peer": "9.11",
     "stream-to-it": "^0.2.3",
     "webrtc-stun": "3.0.0",
