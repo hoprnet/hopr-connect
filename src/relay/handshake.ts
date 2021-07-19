@@ -21,7 +21,7 @@ export enum RelayHandshakeMessage {
   FAIL_COULD_NOT_IDENTIFY_PEER,
   FAIL_INVALID_PUBLIC_KEY,
   FAIL_LOOPBACKS_ARE_NOT_ALLOWED,
-  FAIL_RELAY_FULL,
+  FAIL_RELAY_FULL
 }
 
 function handshakeMessageToString(handshakeMessage: RelayHandshakeMessage): string {
@@ -85,7 +85,7 @@ class RelayHandshake {
   /**
    * Immediately rejects the relay handshake with the given reason
    * @param reason one of RelayHandshakeMessage to send before termination
-   * @returns 
+   * @returns
    */
   async reject(reason: RelayHandshakeMessage) {
     this.shaker.write(Uint8Array.of(reason))
@@ -93,7 +93,7 @@ class RelayHandshake {
     return {
       success: false,
       code: 'FAIL'
-    } 
+    }
   }
 
   /**
@@ -170,7 +170,7 @@ class RelayHandshake {
     createNew: InstanceType<typeof RelayState>['createNew']
   ): Promise<void> {
     log(`handling relay request`)
-    
+
     let chunk: StreamResult | undefined
 
     try {

@@ -67,7 +67,7 @@ async function startNode({
   noDirectConnections,
   noWebRTCUpgrade,
   pipeFileStream,
-  maxRelayedConnections,
+  maxRelayedConnections
 }: {
   peerId: PeerId
   port: number
@@ -164,7 +164,7 @@ async function executeCommands({
         const targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${cmdDef.targetPort}/p2p/${targetPeerId.toB58String()}`)
         console.log(`dialing ${cmdDef.targetIdentityName}`)
         await node.dial(targetAddress)
-        
+
         console.log(`dialed`)
         break
       }
@@ -173,16 +173,17 @@ async function executeCommands({
         const relayPeerId = await peerIdForIdentity(cmdDef.relayIdentityName)
 
         console.log(`msg: dialing ${cmdDef.targetIdentityName} though relay ${cmdDef.relayIdentityName}`)
-        const { stream } = await node.dialProtocol(
-          new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
-          TEST_PROTOCOL
-        )
-        .catch(err => {
-          console.log(`dialProtocol to ${cmdDef.targetIdentityName} failed`)
-          console.log(err)
-          process.exit(1)
-        })
-       
+        const { stream } = await node
+          .dialProtocol(
+            new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
+            TEST_PROTOCOL
+          )
+          .catch((err) => {
+            console.log(`dialProtocol to ${cmdDef.targetIdentityName} failed`)
+            console.log(err)
+            process.exit(1)
+          })
+
         console.log(`sending msg '${cmdDef.msg}'`)
 
         const encodedMsg = encodeMsg(cmdDef.msg)
@@ -268,7 +269,7 @@ async function main() {
     noDirectConnections: argv.noDirectConnections,
     noWebRTCUpgrade: argv.noWebRTCUpgrade,
     pipeFileStream,
-    maxRelayedConnections: argv.maxRelayedConnections,
+    maxRelayedConnections: argv.maxRelayedConnections
   })
 
   await executeCommands({ node, cmds: argv.script, pipeFileStream })

@@ -63,11 +63,10 @@ class Relay {
       log(`handling relay request from ${connection.remotePeer}`)
       log(`relayed connection count: ${this.relayState.relayedConnectionCount()}`)
 
-      if(this.relayState.relayedConnectionCount() >= this.maxRelayedConnections) {
+      if (this.relayState.relayedConnectionCount() >= this.maxRelayedConnections) {
         log(`relayed request rejected, already at max capacity (${this.maxRelayedConnections})`)
         shaker.reject(RelayHandshakeMessage.FAIL_RELAY_FULL)
-      } else 
-      {      
+      } else {
         shaker.negotiate(
           connection.remotePeer,
           (counterparty: PeerId) => this.contactCounterparty(counterparty),

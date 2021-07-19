@@ -67,12 +67,24 @@ class HoprConnect implements Transport {
 
   private connHandler?: ConnHandler
 
+<<<<<<< HEAD
   constructor(
     opts: {
       upgrader: Upgrader
       libp2p: libp2p
     } & HoprConnectOptions
   ) {
+=======
+  constructor(opts: {
+    upgrader: Upgrader
+    libp2p: libp2p
+    bootstrapServers?: Multiaddr[] | Multiaddr
+    interface?: string
+    __noDirectConnections?: boolean
+    __noWebRTCUpgrade?: boolean
+    maxRelayedConnections?: number
+  }) {
+>>>>>>> d9f663a (Fix linting)
     if (!opts.upgrader) {
       throw new Error('An upgrader must be provided. See https://github.com/libp2p/interface-transport#upgrader.')
     }
@@ -111,7 +123,7 @@ class HoprConnect implements Transport {
       this.connHandler,
       this._webRTCUpgrader,
       opts.__noWebRTCUpgrade,
-      opts.maxRelayedConnections,
+      opts.maxRelayedConnections
     )
 
     // Used for testing
