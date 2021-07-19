@@ -82,7 +82,7 @@ async function startNode({
     initialNodes: bootstrapAddress ? [bootstrapAddress] : [],
     __noDirectConnections: noDirectConnections,
     __noWebRTCUpgrade: noWebRTCUpgrade,
-    maxRelayedConnections,
+    maxRelayedConnections
   }
 
   const node = await libp2p.create({
