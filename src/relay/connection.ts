@@ -299,10 +299,13 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       // 3. Handle source attach
       // 4. Handle status messages
       // 5. Handle payload messages
+      this.verbose(`FLOW: awaiting promises`)
       result = await Promise.race(promises)
+      this.verbose(`FLOW: promises resolved`)
 
       // Stream is done, nothing to do
       if (this._streamClosed && this.destroyed) {
+        this.verbose(`FLOW: stream is closed, break`)
         break
       }
 
@@ -319,6 +322,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
         currentSource = undefined
         streamPromise = undefined
         this._migrationDone?.resolve()
+        this.verbose(`FLOW: stream switched, continue`)
         continue
       }
 
@@ -330,6 +334,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
         streamPromise = undefined
         result = undefined
+        this.verbose(`FLOW: source attached, forwarding`)
         continue
       }
 
@@ -341,10 +346,12 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
           this.destroyed = true
           this._destroyedPromise.resolve()
 
+          this.verbose(`FLOW: STOP received, break`)
           yield statusMsg
           break
         }
 
+        this.verbose(`FLOW: unrelated status message received, continue`)
         yield statusMsg
 
         continue
@@ -359,6 +366,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       if (received.done) {
         currentSource = undefined
         streamPromise = undefined
+        this.verbose(`FLOW: received.done == true, break`)
         break
       }
 
@@ -367,6 +375,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
       yield Uint8Array.from([RelayPrefix.PAYLOAD, ...received.value.slice()])
     }
+    this.verbose(`FLOW: breaked out the loop`)
   }
 
   /**
