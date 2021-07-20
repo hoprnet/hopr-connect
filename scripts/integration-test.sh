@@ -25,6 +25,9 @@ declare tmp="/tmp"
 [[ -d "${tmp}" && -h "${tmp}" ]] && tmp="/var/tmp"
 [[ -d "${tmp}" && -h "${tmp}" ]] && { msg "Neither /tmp or /var/tmp can be used for writing logs"; exit 1; }
 
+
+declare flow_log="${tmp}/hopr-connect-flow.log"
+
 declare alice_log="${tmp}/hopr-connect-alice.log"
 declare alice_pipe="${tmp}/hopr-connect-alice-pipe.log"
 declare alice_port=11090
@@ -125,6 +128,7 @@ log "bob msgs -> ${bob_pipe}"
 log "charly logs -> ${charly_log}"
 log "dave logs -> ${dave_log}"
 log "ed logs -> ${ed_log}"
+log "common flow log -> ${flow_log}"
 
 # run alice (client)
 # should be able to send 'test from alice' to bob through relay charly
@@ -259,6 +263,16 @@ wait_for_regex_in_file "${ed_log}" "all tasks executed"
 # dave should have failed to complete
 wait_for_regex_in_file "${dave_log}" "Answer was: <FAIL_RELAY_FULL>"
 wait_for_regex_in_file "${dave_log}" "dialProtocol to bob failed"
+
+# create global flow log
+rm -Rf "${flow_log}"
+cat "/var/tmp/hopr-connect-alice.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /alice: /p' >> "${flow_log}"
+cat "/var/tmp/hopr-connect-bob.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /bob: /p' >> "${flow_log}"
+cat "/var/tmp/hopr-connect-charly.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /charly: /p' >> "${flow_log}"
+cat "/var/tmp/hopr-connect-dave.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /dave: /p' >> "${flow_log}"
+cat "/var/tmp/hopr-connect-ed.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /ed: /p' >> "${flow_log}"
+
+sort "${flow_log}" > "${flow_log}"
 
 expect_file_content "${alice_pipe}" \
 ">bob: test from alice
