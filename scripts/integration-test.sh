@@ -266,13 +266,12 @@ wait_for_regex_in_file "${dave_log}" "dialProtocol to bob failed"
 
 # create global flow log
 rm -Rf "${flow_log}"
-cat "/var/tmp/hopr-connect-alice.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /alice: /p' >> "${flow_log}"
-cat "/var/tmp/hopr-connect-bob.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /bob: /p' >> "${flow_log}"
-cat "/var/tmp/hopr-connect-charly.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /charly: /p' >> "${flow_log}"
-cat "/var/tmp/hopr-connect-dave.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /dave: /p' >> "${flow_log}"
-cat "/var/tmp/hopr-connect-ed.log" | grep "FLOW: " | sed -En 's/hopr-connect.*FLOW: /ed: /p' >> "${flow_log}"
-
-sort "${flow_log}" > "${flow_log}"
+cat "${alice_log}" | sed -En 's/hopr-connect.*FLOW: /alice: /p' >> "${flow_log}"
+cat "${bob_log}" | sed -En 's/hopr-connect.*FLOW: /bob: /p' >> "${flow_log}"
+cat "${charly_log}" | sed -En 's/hopr-connect.*FLOW: /charly: /p' >> "${flow_log}"
+cat "${dave_log}" | sed -En 's/hopr-connect.*FLOW: /dave: /p' >> "${flow_log}"
+cat "${ed_log}" | sed -En 's/hopr-connect.*FLOW: /ed: /p' >> "${flow_log}"
+sort -o "${flow_log}" "${flow_log}"
 
 expect_file_content "${alice_pipe}" \
 ">bob: test from alice
