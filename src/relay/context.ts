@@ -170,9 +170,12 @@ class RelayContext extends EventEmitter {
           promises.push(this._sourcePromise)
         }
 
+
+        this.verbose(`FLOW: awaiting promises`)
         // 1. Handle Stream switches
         // 2. Handle payload / status messages
         result = await Promise.race(promises)
+        this.verbose(`FLOW: promises done`)
 
         if (result == undefined) {
           // @TODO throw Error to make debugging easier
@@ -188,6 +191,7 @@ class RelayContext extends EventEmitter {
 
           next()
 
+          this.verbose(`FLOW: source switched, continue`)
           yield Uint8Array.of(RelayPrefix.CONNECTION_STATUS, ConnectionStatusMessages.RESTART)
           continue
         }
@@ -195,6 +199,7 @@ class RelayContext extends EventEmitter {
         const received = result as IteratorYieldResult<Uint8Array>
 
         if (received.done) {
+          this.verbose(`FLOW: received done, continue`)
           continue
         }
 
@@ -203,6 +208,7 @@ class RelayContext extends EventEmitter {
           this.log(`got empty message`)
           next()
 
+          this.verbose(`FLOW: got empty message, continue`)
           // Ignore empty messages
           continue
         }
@@ -215,6 +221,7 @@ class RelayContext extends EventEmitter {
           next()
 
           // Ignore invalid prefixes
+          this.verbose(`FLOW: invalid prefix`)
           continue
         }
 
@@ -232,7 +239,8 @@ class RelayContext extends EventEmitter {
           }
 
           next()
-
+          
+          this.verbose(`FLOW: got PING or PONG, continue`)
           continue
           // Interprete connection sub-protocol
         } else if (PREFIX[0] == RelayPrefix.CONNECTION_STATUS) {
@@ -240,6 +248,8 @@ class RelayContext extends EventEmitter {
             this.verbose(`STOP relayed`)
 
             this.emit('close')
+            
+            this.verbose(`FLOW: STOP relayed, break`)
             // forward STOP message
             yield received.value
 
@@ -247,13 +257,18 @@ class RelayContext extends EventEmitter {
             break
           } else if ((SUFFIX[0] = ConnectionStatusMessages.RESTART)) {
             this.verbose(`RESTART relayed`)
+            this.verbose(`FLOW: RESTART relayed, break`)
           }
         }
+
+        this.verbose(`FLOW: loop end`)
 
         yield received.value
 
         next()
       }
+      
+      this.verbose(`FLOW: loop ended`)
     }.call(this)
 
     return eagerIterator(iterator)

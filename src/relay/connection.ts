@@ -372,6 +372,8 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
       result = undefined
       streamPromise = (currentSource as Stream['source']).next()
+      
+      this.verbose(`FLOW: loop end`)
 
       yield Uint8Array.from([RelayPrefix.PAYLOAD, ...received.value.slice()])
     }
