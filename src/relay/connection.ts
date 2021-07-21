@@ -176,16 +176,21 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       this.verbose(`close called. No error`)
     }
 
+    this.verbose(`FLOW: queueing STOP`)
+    this.queueStatusMessage(Uint8Array.of(RelayPrefix.CONNECTION_STATUS, ConnectionStatusMessages.STOP))
+
     if (this.destroyed) {
+      this.verbose(`FLOW: connection already destroyed, finish`)
       return
     }
 
-    this.queueStatusMessage(Uint8Array.of(RelayPrefix.CONNECTION_STATUS, ConnectionStatusMessages.STOP))
-
+    this.verbose(`FLOW: setting closed`)
     this.setClosed()
-
+    
+    this.verbose(`FLOW: awaiting destroyed promise / timeout`)    
     // @TODO remove timeout once issue with destroyPromise is solved
     await Promise.race([new Promise((resolve) => setTimeout(resolve, 100)), this._destroyedPromise.promise])
+    this.verbose(`FLOW: close complete, finish`)
   }
 
   /**
