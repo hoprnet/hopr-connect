@@ -280,23 +280,33 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
     while (true) {
       let promises: Promise<SinkType>[] = []
+      
+      let resolvedPromiseName 
+
+      const pushPromise = (promise: Promise<SinkType>, name: string) => {
+        promises.push(promise.then(res => { 
+          resolvedPromiseName = name
+          return res
+        }))
+      }
 
       // Wait for stream close and stream switch signals
-      promises.push(this._closePromise.promise, this._sinkSwitchPromise.promise)
+      pushPromise(this._closePromise.promise, "close")
+      pushPromise(this._sinkSwitchPromise.promise, "sinkSwitch")
 
       // Wait for source being attached to sink
       if (currentSource == undefined) {
-        promises.push(this._sinkSourceAttachedPromise.promise)
+        pushPromise(this._sinkSourceAttachedPromise.promise, "sinkSourceAttached")
       }
 
       // Wait for status messages
-      promises.push(this._statusMessagePromise.promise)
+      pushPromise(this._statusMessagePromise.promise, "statusMessage")
 
       // Wait for payload messages
       if (currentSource != undefined) {
         streamPromise = streamPromise ?? currentSource.next()
 
-        promises.push(streamPromise)
+        pushPromise(streamPromise, "payload")
       }
 
       // 1. Handle stream close
@@ -304,9 +314,9 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       // 3. Handle source attach
       // 4. Handle status messages
       // 5. Handle payload messages
-      this.verbose(`FLOW: awaiting promises`)
-      result = await Promise.race(promises)
-      this.verbose(`FLOW: promises resolved`)
+      this.verbose(`FLOW: outgoing: awaiting promises`)
+      result = await Promise.race(promises)      
+      this.verbose(`FLOW: outgoing: promise ${resolvedPromiseName} resolved`)
 
       // Stream is done, nothing to do
       if (this._streamClosed && this.destroyed) {
@@ -412,20 +422,35 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       }
 
       while (this._iteration == drainIteration) {
+<<<<<<< HEAD
         const promises = []
+=======
+        this.verbose(`FLOW: incoming: new loop iteration`)
+        const promises: Promise<any>[] = []
+>>>>>>> c9b4f8d (more logging of flow)
 
+        let resolvedPromiseName
+
+        const pushPromise = (promise: Promise<any>, name: string) => {
+          promises.push(promise.then(res => { 
+            resolvedPromiseName = name
+            return res
+          }))
+        }
         // Wait for stream close attempts
-        promises.push(this._closePromise.promise)
+        pushPromise(this._closePromise.promise, "close")
 
         // Wait for stream switches
         if (!this._sourceSwitched) {
-          promises.push(this._sourceSwitchPromise.promise)
+          pushPromise(this._sourceSwitchPromise.promise, "sourceSwitch")          
         }
 
         // Wait for payload messages
-        promises.push(streamPromise)
+        pushPromise(streamPromise, "payload")
 
         result = (await Promise.race(promises)) as any
+
+        this.verbose(`FLOW: incoming: promise ${resolvedPromiseName} resolved`)
 
         // End stream once new instance is used
         if (this._iteration != drainIteration) {
