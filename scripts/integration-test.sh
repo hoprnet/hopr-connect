@@ -162,7 +162,7 @@ start_node tests/node.ts \
     --bootstrapPort ${charly_port} \
     --bootstrapIdentityName 'charly' \
     --noDirectConnections true \
-    --noWebRTCUpgrade false \
+    --noWebRTCUpgrade true \
     
 # run bob (client)
 # should be able to receive 'test' from alice through charly
@@ -184,7 +184,7 @@ start_node tests/node.ts "${bob_log}"  \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false \  
+  --noWebRTCUpgrade true \  
   
 # run charly
 # should able to serve as a bootstrap
@@ -194,7 +194,7 @@ start_node tests/node.ts "${charly_log}" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false \
+  --noWebRTCUpgrade true \
   --maxRelayedConnections 1
 
 
@@ -222,7 +222,7 @@ start_node tests/node.ts "${dave_log}" \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false
+  --noWebRTCUpgrade true
 
 # run ed (client)
 # should try connecting to bob through relay charly after alice finishes talking to bob and succeed
@@ -248,7 +248,7 @@ start_node tests/node.ts "${ed_log}" \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false
+  --noWebRTCUpgrade true
 
 # wait till nodes finish communicating
 wait_for_regex_in_file "${alice_log}" "all tasks executed"
