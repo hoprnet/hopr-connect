@@ -17,6 +17,7 @@ import abortable from 'abortable-iterator'
 const DEBUG_PREFIX = `hopr-connect`
 
 const _log = Debug(DEBUG_PREFIX)
+const _verbose = Debug('hopr-connect:verbose')
 const _error = Debug(DEBUG_PREFIX.concat(`error`))
 
 export const WEBRTC_UPGRADE_TIMEOUT = durations.seconds(3)
@@ -123,6 +124,13 @@ class WebRTCConnection implements MultiaddrConnection {
    */
   private log(..._: any[]) {
     _log(`WRTC [${this._id}]`, ...arguments)
+  }
+
+  /**
+   * Log verbose messages and add identity tag to distinguish multiple instances
+   */
+   private verbose(..._: any[]) {
+    _verbose(`WRTC [${this._id}]`, ...arguments)
   }
 
   /**
