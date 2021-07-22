@@ -165,22 +165,23 @@ class RelayContext extends EventEmitter {
         let resolvedPromiseName
 
         const pushPromise = (promise: Promise<any>, name: string) => {
-          promises.push(promise.then(res => { 
-            resolvedPromiseName = name
-            return res
-          }))
+          promises.push(
+            promise.then((res) => {
+              resolvedPromiseName = name
+              return res
+            })
+          )
         }
 
         // Wait for stream switches
-        pushPromise(this._streamSourceSwitchPromise.promise, "streamSwitch")
+        pushPromise(this._streamSourceSwitchPromise.promise, 'streamSwitch')
 
         // Wait for payload messages
         if (result == undefined || (result as StreamResult).done != true) {
           this._sourcePromise = this._sourcePromise ?? this._stream.source.next()
 
-          pushPromise(this._sourcePromise, "sourcePromise")
+          pushPromise(this._sourcePromise, 'sourcePromise')
         }
-
 
         this.verbose(`FLOW: relay_incoming: awaiting promises`)
         // 1. Handle Stream switches
@@ -250,7 +251,7 @@ class RelayContext extends EventEmitter {
           }
 
           next()
-          
+
           this.verbose(`FLOW: relay_incoming: got PING or PONG, continue`)
           continue
           // Interprete connection sub-protocol
@@ -259,7 +260,7 @@ class RelayContext extends EventEmitter {
             this.verbose(`STOP relayed`)
 
             this.emit('close')
-            
+
             this.verbose(`FLOW: relay_incoming: STOP relayed, break`)
             // forward STOP message
             yield received.value
@@ -278,7 +279,7 @@ class RelayContext extends EventEmitter {
 
         next()
       }
-      
+
       this.verbose(`FLOW: relay_incoming: loop ended`)
     }.call(this)
 
@@ -321,22 +322,24 @@ class RelayContext extends EventEmitter {
         let resolvedPromiseName
 
         const pushPromise = (promise: Promise<any>, name: string) => {
-          promises.push(promise.then(res => { 
-            resolvedPromiseName = name
-            return res
-          }))
-        }
-        
-        if (currentSource == undefined) {
-          pushPromise(this._sinkSourceAttachedPromise.promise, "sinkSourceAttacked")
+          promises.push(
+            promise.then((res) => {
+              resolvedPromiseName = name
+              return res
+            })
+          )
         }
 
-        pushPromise(this._statusMessagePromise.promise, "statusMessage")
+        if (currentSource == undefined) {
+          pushPromise(this._sinkSourceAttachedPromise.promise, 'sinkSourceAttacked')
+        }
+
+        pushPromise(this._statusMessagePromise.promise, 'statusMessage')
 
         if (currentSource != undefined && (result == undefined || (result as StreamResult).done != true)) {
           sourcePromise = sourcePromise ?? currentSource.next()
 
-          pushPromise(sourcePromise, "payload")
+          pushPromise(sourcePromise, 'payload')
         }
 
         // (0. Handle source attach)
@@ -399,7 +402,7 @@ class RelayContext extends EventEmitter {
 
         next()
         this.verbose(`FLOW: relay_outgoing: end of loop iteration`)
-        yield received.value        
+        yield received.value
       }
       this.verbose(`FLOW: relay_outgoing: loop ended`)
     }

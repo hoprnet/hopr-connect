@@ -129,7 +129,7 @@ class WebRTCConnection implements MultiaddrConnection {
   /**
    * Log verbose messages and add identity tag to distinguish multiple instances
    */
-   private verbose(..._: any[]) {
+  private verbose(..._: any[]) {
     _verbose(`WRTC [${this._id}]`, ...arguments)
   }
 
@@ -220,29 +220,31 @@ class WebRTCConnection implements MultiaddrConnection {
               this.verbose(`FLOW: webrtc sink: loop iteration`)
               const promises: Promise<SinkType>[] = []
 
-              let resolvedPromiseName 
+              let resolvedPromiseName
 
               const pushPromise = (promise: Promise<SinkType>, name: string) => {
-                promises.push(promise.then(res => { 
-                  resolvedPromiseName = name
-                  return res
-                }))
+                promises.push(
+                  promise.then((res) => {
+                    resolvedPromiseName = name
+                    return res
+                  })
+                )
               }
 
               // No source available, need to wait for it
               if (!sourceAttached) {
-                pushPromise(this._sinkSourceAttachedPromise.promise, "sourceAttached")
+                pushPromise(this._sinkSourceAttachedPromise.promise, 'sourceAttached')
               }
 
               // WebRTC handshake is not completed yet
               if (!webRTCFinished) {
-                pushPromise(this._switchPromise.promise, "switch")
+                pushPromise(this._switchPromise.promise, 'switch')
               }
 
               // Source already attached, wait for incoming messages
               if (sourceAttached) {
                 sourcePromise ??= (source as Stream['source']).next()
-                pushPromise(sourcePromise, "source")
+                pushPromise(sourcePromise, 'source')
               }
 
               // (0.) Handle stream source attach

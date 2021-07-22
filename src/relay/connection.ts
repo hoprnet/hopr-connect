@@ -186,8 +186,8 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
     this.verbose(`FLOW: setting closed`)
     this.setClosed()
-    
-    this.verbose(`FLOW: awaiting destroyed promise / timeout`)    
+
+    this.verbose(`FLOW: awaiting destroyed promise / timeout`)
     // @TODO remove timeout once issue with destroyPromise is solved
     await Promise.race([new Promise((resolve) => setTimeout(resolve, 100)), this._destroyedPromise.promise])
     this.verbose(`FLOW: close complete, finish`)
@@ -280,33 +280,35 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
     while (true) {
       let promises: Promise<SinkType>[] = []
-      
-      let resolvedPromiseName 
+
+      let resolvedPromiseName
 
       const pushPromise = (promise: Promise<SinkType>, name: string) => {
-        promises.push(promise.then(res => { 
-          resolvedPromiseName = name
-          return res
-        }))
+        promises.push(
+          promise.then((res) => {
+            resolvedPromiseName = name
+            return res
+          })
+        )
       }
 
       // Wait for stream close and stream switch signals
-      pushPromise(this._closePromise.promise, "close")
-      pushPromise(this._sinkSwitchPromise.promise, "sinkSwitch")
+      pushPromise(this._closePromise.promise, 'close')
+      pushPromise(this._sinkSwitchPromise.promise, 'sinkSwitch')
 
       // Wait for source being attached to sink
       if (currentSource == undefined) {
-        pushPromise(this._sinkSourceAttachedPromise.promise, "sinkSourceAttached")
+        pushPromise(this._sinkSourceAttachedPromise.promise, 'sinkSourceAttached')
       }
 
       // Wait for status messages
-      pushPromise(this._statusMessagePromise.promise, "statusMessage")
+      pushPromise(this._statusMessagePromise.promise, 'statusMessage')
 
       // Wait for payload messages
       if (currentSource != undefined) {
         streamPromise = streamPromise ?? currentSource.next()
 
-        pushPromise(streamPromise, "payload")
+        pushPromise(streamPromise, 'payload')
       }
 
       // 1. Handle stream close
@@ -315,7 +317,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       // 4. Handle status messages
       // 5. Handle payload messages
       this.verbose(`FLOW: outgoing: awaiting promises`)
-      result = await Promise.race(promises)      
+      result = await Promise.race(promises)
       this.verbose(`FLOW: outgoing: promise ${resolvedPromiseName} resolved`)
 
       // Stream is done, nothing to do
@@ -387,7 +389,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
 
       result = undefined
       streamPromise = (currentSource as Stream['source']).next()
-      
+
       this.verbose(`FLOW: loop end`)
 
       yield Uint8Array.from([RelayPrefix.PAYLOAD, ...received.value.slice()])
@@ -428,21 +430,23 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
         let resolvedPromiseName
 
         const pushPromise = (promise: Promise<any>, name: string) => {
-          promises.push(promise.then(res => { 
-            resolvedPromiseName = name
-            return res
-          }))
+          promises.push(
+            promise.then((res) => {
+              resolvedPromiseName = name
+              return res
+            })
+          )
         }
         // Wait for stream close attempts
-        pushPromise(this._closePromise.promise, "close")
+        pushPromise(this._closePromise.promise, 'close')
 
         // Wait for stream switches
         if (!this._sourceSwitched) {
-          pushPromise(this._sourceSwitchPromise.promise, "sourceSwitch")          
+          pushPromise(this._sourceSwitchPromise.promise, 'sourceSwitch')
         }
 
         // Wait for payload messages
-        pushPromise(streamPromise, "payload")
+        pushPromise(streamPromise, 'payload')
 
         result = (await Promise.race(promises)) as any
 
