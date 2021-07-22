@@ -214,34 +214,49 @@ class WebRTCConnection implements MultiaddrConnection {
               result = undefined
             }
 
+            this.verbose(`FLOW: webrtc sink: loop started`)
+
             while (true) {
+              this.verbose(`FLOW: webrtc sink: loop iteration`)
               const promises: Promise<SinkType>[] = []
+
+              let resolvedPromiseName 
+
+              const pushPromise = (promise: Promise<SinkType>, name: string) => {
+                promises.push(promise.then(res => { 
+                  resolvedPromiseName = name
+                  return res
+                }))
+              }
 
               // No source available, need to wait for it
               if (!sourceAttached) {
-                promises.push(this._sinkSourceAttachedPromise.promise)
+                pushPromise(this._sinkSourceAttachedPromise.promise, "sourceAttached")
               }
 
               // WebRTC handshake is not completed yet
               if (!webRTCFinished) {
-                promises.push(this._switchPromise.promise)
+                pushPromise(this._switchPromise.promise, "switch")
               }
 
               // Source already attached, wait for incoming messages
               if (sourceAttached) {
                 sourcePromise ??= (source as Stream['source']).next()
-                promises.push(sourcePromise)
+                pushPromise(sourcePromise, "source")
               }
 
               // (0.) Handle stream source attach
               // 1. Handle stream handover
               // 2. Handle stream messages
+              this.verbose(`FLOW: webrtc sink: awaiting promises`)
               result = await Promise.race(promises)
+              this.verbose(`FLOW: webrtc sink: promise resolved ${resolvedPromiseName}`)
 
               // Source got attached
               if (!sourceAttached && this._sinkSourceAttached) {
                 sourceAttached = true
                 source = result as Stream['source']
+                this.verbose(`FLOW: webrtc sink: source attached, continue`)
                 continue
               }
 
@@ -251,11 +266,13 @@ class WebRTCConnection implements MultiaddrConnection {
 
                 if (this._webRTCAvailable) {
                   // Send DONE and migrate to direct WebRTC connection
+                  this.verbose(`FLOW: webrtc sink: webrtc finished, handle`)
                   yield Uint8Array.of(MigrationStatus.DONE)
                   break
                 } else {
                   // WebRTC upgrade finished but no connection
                   // possible
+                  this.verbose(`FLOW: webrtc sink: WebRTC upgrade finished but no connection, continue`)
                   continue
                 }
               }
@@ -263,16 +280,17 @@ class WebRTCConnection implements MultiaddrConnection {
               const received = result as StreamResult
 
               if (received.done) {
+                this.verbose(`FLOW: webrtc sink: received.done, break`)
                 break
               }
 
               next()
 
               this.log(`sinking ${received.value.slice().length} bytes into relayed connection`)
-
+              this.verbose(`FLOW: webrtc sink: loop iteration ended`)
               yield Uint8Array.from([MigrationStatus.NOT_DONE, ...received.value.slice()])
             }
-
+            this.verbose(`FLOW: webrtc sink: loop ended`)
             resolve()
           }.call(this)
         )
