@@ -422,12 +422,8 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
       }
 
       while (this._iteration == drainIteration) {
-<<<<<<< HEAD
-        const promises = []
-=======
         this.verbose(`FLOW: incoming: new loop iteration`)
         const promises: Promise<any>[] = []
->>>>>>> c9b4f8d (more logging of flow)
 
         let resolvedPromiseName
 
