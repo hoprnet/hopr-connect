@@ -147,6 +147,10 @@ start_node tests/node.ts \
         'targetIdentityName': 'bob',
         'msg': 'test from alice'
       },
+      {
+        'cmd': 'wait',
+        'waitForSecs': 2
+      },
       { 
         'cmd': 'hangup',
         'targetIdentityName': 'bob'
@@ -264,6 +268,6 @@ expect_file_content "${bob_pipe}" \
 "<alice: test from alice
 >alice: echo: test from alice
 <ed: test from ed
->ed: echo test from ed"
+>ed: echo: test from ed"
 
 log "Test succesful"
