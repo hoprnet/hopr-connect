@@ -270,7 +270,6 @@ cat "${alice_log}" | sed -En 's/hopr-connect.*FLOW: /alice: /p' >> "${flow_log}"
 cat "${bob_log}" | sed -En 's/hopr-connect.*FLOW: /bob: /p' >> "${flow_log}"
 cat "${charly_log}" | sed -En 's/hopr-connect.*FLOW: /charly: /p' >> "${flow_log}"
 cat "${dave_log}" | sed -En 's/hopr-connect.*FLOW: /dave: /p' >> "${flow_log}"
-cat "${ed_log}" | sed -En 's/hopr-connect.*FLOW: /ed: /p' >> "${flow_log}"
 sort -k1,1 --stable --output "${flow_log}" "${flow_log}"
 
 expect_file_content "${alice_pipe}" \
