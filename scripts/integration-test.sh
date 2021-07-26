@@ -166,7 +166,7 @@ start_node tests/node.ts \
     --bootstrapPort ${charly_port} \
     --bootstrapIdentityName 'charly' \
     --noDirectConnections true \
-    --noWebRTCUpgrade true \
+    --noWebRTCUpgrade false \
     
 # run bob (client)
 # should be able to receive 'test' from alice through charly
@@ -188,7 +188,7 @@ start_node tests/node.ts "${bob_log}"  \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade true \  
+  --noWebRTCUpgrade false \  
   
 # run charly
 # should able to serve as a bootstrap

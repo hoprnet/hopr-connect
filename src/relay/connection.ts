@@ -193,6 +193,10 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
     this.verbose(`FLOW: close complete, finish`)
   }
 
+  sendUpgrade() {
+     this.queueStatusMessage(Uint8Array.of(RelayPrefix.CONNECTION_STATUS, ConnectionStatusMessages.UPGRADED))
+  }
+
   /**
    * Log messages and add identity tag to distinguish multiple instances
    */
@@ -506,7 +510,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
             this._onReconnect(this.switch(), this._counterparty)
 
             continue
-          }
+          } 
         } else if (PREFIX[0] == RelayPrefix.STATUS_MESSAGE) {
           if (SUFFIX[0] == StatusMessages.PING) {
             this.verbose(`PING received`)
