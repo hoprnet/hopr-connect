@@ -269,11 +269,7 @@ class RelayContext extends EventEmitter {
             break
           } else if (SUFFIX[0] == ConnectionStatusMessages.UPGRADED) {
             this.verbose(`UPGRADED relayed`)
-
-            // this.emit('close')
-
-            // this.verbose(`FLOW: relay_incoming: STOP relayed, break`)
-            // forward UPGRADED message
+            this.emit('upgrade') 
             next()
             continue
             // close stream
