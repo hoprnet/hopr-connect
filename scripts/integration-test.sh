@@ -233,7 +233,7 @@ start_node tests/node.ts "${dave_log}" \
 start_node tests/node.ts "${ed_log}" \
   "[ {
         'cmd': 'wait',
-        'waitForSecs': 5
+        'waitForSecs': 6
       },
       {
         'cmd': 'dial',
