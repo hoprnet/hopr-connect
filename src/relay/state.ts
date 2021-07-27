@@ -114,6 +114,9 @@ class RelayState {
     toSourceContext.once('close', this.cleanListener(source, destination))
     toSourceContext.once('close', this.cleanListener(destination, source))
 
+    toSourceContext.once('upgrade', this.cleanListener(source, destination))
+    toSourceContext.once('upgrade', this.cleanListener(destination, source))
+
     this.relayedConnections.set(RelayState.getId(source, destination), relayedConnection)
   }
 
@@ -125,6 +128,8 @@ class RelayState {
    */
   private cleanListener(source: PeerId, destination: PeerId): () => void {
     return function (this: RelayState) {
+      console.trace()
+      console.log(`cleaning listner ${source} - ${destination}`)
       const id = RelayState.getId(source, destination)
 
       let found = this.relayedConnections.get(id)
