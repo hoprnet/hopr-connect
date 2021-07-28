@@ -3,7 +3,7 @@
 /// <reference path="../@types/libp2p-interfaces.ts" />
 
 import { Stream } from 'libp2p'
-import { BLInterface } from 'bl'
+import BL from 'bl'
 import handshake, { Handshake } from 'it-handshake'
 import PeerId from 'peer-id'
 
@@ -70,7 +70,7 @@ type HandleResponse =
       counterparty: PeerId
     }
 
-export type StreamResult = Buffer | Uint8Array | BLInterface
+export type StreamResult = Buffer | Uint8Array | BL
 
 /**
  * Encapsulates the relay handshake procedure
@@ -286,7 +286,7 @@ class RelayHandshake {
    * @returns a duplex stream with the initiator
    */
   async handle(source: PeerId): Promise<HandleResponse> {
-    let chunk: Uint8Array | BLInterface | undefined
+    let chunk: Uint8Array | BL | undefined
     try {
       chunk = await this.shaker.read()
     } catch (err) {

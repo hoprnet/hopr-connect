@@ -1,4 +1,3 @@
-/// <reference path="../@types/bl.ts" />
 /// <reference path="../@types/libp2p.ts" />
 
 import { Multiaddr } from 'multiaddr'

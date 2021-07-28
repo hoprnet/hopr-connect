@@ -1,5 +1,4 @@
 /// <reference path="../@types/libp2p.ts" />
-/// <reference path="../@types/bl.ts" />
 
 import type { Stream, StreamType, Handler } from 'libp2p'
 import type LibP2P from 'libp2p'

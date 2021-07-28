@@ -1,12 +1,10 @@
-/// <reference path="./bl.ts" />
-
 declare module 'libp2p' {
   type PeerId = import('peer-id')
   type Multiaddr = import('multiaddr').Multiaddr
   type EventEmitter = import('events').EventEmitter
   type AbortSignal = import('abort-controller').AbortSignal
   type Connection = import('libp2p-interfaces').Connection
-  type BL = import('bl').BLInterface
+  type BL = import('bl')
 
   export type PeerRoute = {
     id: PeerId
