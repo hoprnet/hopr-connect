@@ -23,7 +23,12 @@ function msgToEchoedMessage(message: string) {
 describe('test relay', function () {
   const connEvents = new EventEmitter()
 
-  async function dialHelper(source: PeerId, peer: PeerId, protocol: string, _opts: any): Promise<Omit<HandlerProps, 'connection'>> {
+  async function dialHelper(
+    source: PeerId,
+    peer: PeerId,
+    protocol: string,
+    _opts: any
+  ): Promise<Omit<HandlerProps, 'connection'>> {
     let sourceToPeer: Stream
     let peerToSource: Stream
 
