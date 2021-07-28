@@ -193,7 +193,10 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
     this.verbose(`FLOW: close complete, finish`)
   }
 
-  sendUpgrade() {
+  /**
+   * Send UPGRADED status msg to the relay, so it can free the slot
+   */
+  sendUpgraded() {
     this.verbose(`FLOW: sending UPGRADED`)
      this.queueStatusMessage(Uint8Array.of(RelayPrefix.CONNECTION_STATUS, ConnectionStatusMessages.UPGRADED))
   }
