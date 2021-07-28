@@ -26,7 +26,8 @@ describe('test webrtc connection', function () {
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
-        sink: AliceBob.sink
+        sink: AliceBob.sink,
+        sendUpgraded: () => {}
       } as any,
       new EventEmitter() as any
     )
@@ -63,7 +64,8 @@ describe('test webrtc connection', function () {
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
-        sink: AliceBob.sink
+        sink: AliceBob.sink,
+        sendUpgraded: () => {}
       } as any,
       webRTCInstance as any
     )
@@ -128,7 +130,8 @@ describe('test webrtc connection', function () {
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
-        sink: AliceBob.sink
+        sink: AliceBob.sink,
+        sendUpgraded: () => {}
       } as any,
       webRTCInstance as any
     )
@@ -187,7 +190,8 @@ describe('test webrtc connection', function () {
       {
         source: BobAlice.source,
         sink: AliceBob.sink,
-        remoteAddr: new Multiaddr(`/p2p/${Bob.toB58String()}`)
+        remoteAddr: new Multiaddr(`/p2p/${Bob.toB58String()}`),
+        sendUpgraded: () => {}
       } as any,
       webRTCInstance as any
     )
