@@ -269,6 +269,9 @@ class RelayContext extends EventEmitter {
             break
           } else if (SUFFIX[0] == ConnectionStatusMessages.UPGRADED) {
             this.verbose(`UPGRADED relayed`)
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
             this.emit('upgrade') 
             next()
             continue
