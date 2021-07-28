@@ -1,6 +1,4 @@
 /// <reference path="../@types/it-handshake.ts" />
-/// <reference path="../@types/libp2p.ts" />
-/// <reference path="../@types/libp2p-interfaces.ts" />
 
 import { Stream, StreamType } from '../types'
 import BL from 'bl'

@@ -1,11 +1,10 @@
 /// <reference path="../@types/it-handshake.ts" />
 /// <reference path="../@types/it-pair.ts" />
-/// <reference path="../@types/libp2p.ts" />
 
 import handshake from 'it-handshake'
 import Pair from 'it-pair'
 
-import type { StreamType } from 'libp2p'
+import type { StreamType } from '../types'
 
 import assert from 'assert'
 import PeerId from 'peer-id'

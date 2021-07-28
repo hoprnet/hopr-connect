@@ -1,10 +1,9 @@
 /// <reference path="../@types/it-pair.ts" />
 /// <reference path="../@types/it-handshake.ts" />
-/// <reference path="../@types/libp2p.ts" />
 
 import { Relay } from './index'
 import PeerId from 'peer-id'
-import { Handler } from 'libp2p'
+import { HandlerProps } from 'libp2p'
 import Pair from 'it-pair'
 import EventEmitter from 'events'
 import { privKeyToPeerId, stringToU8a, u8aEquals } from '@hoprnet/hopr-utils'
@@ -24,7 +23,7 @@ function msgToEchoedMessage(message: string) {
 describe('test relay', function () {
   const connEvents = new EventEmitter()
 
-  async function dialHelper(source: PeerId, peer: PeerId, protocol: string, _opts: any): Promise<Handler> {
+  async function dialHelper(source: PeerId, peer: PeerId, protocol: string, _opts: any): Promise<Omit<HandlerProps, 'connection'>> {
     let sourceToPeer: Stream
     let peerToSource: Stream
 
@@ -44,7 +43,7 @@ describe('test relay', function () {
       connection: {
         remotePeer: source
       }
-    } as Handler)
+    } as any)
 
     return {
       connection: {
@@ -52,19 +51,19 @@ describe('test relay', function () {
       },
       protocol,
       stream: sourceToPeer
-    } as Handler
+    } as any
   }
 
-  function handle(peer: PeerId, protocol: string, handler: (conn: Handler) => void) {
+  function handle(peer: PeerId, protocol: string, handler: (conn: HandlerProps) => void) {
     connEvents.on(`${peer.toB58String()}${protocol}`, handler)
   }
 
   function createPeer(source: PeerId) {
     return new Relay(
-      (peer: PeerId, protocol: string, opts: any) => dialHelper(source, peer, protocol, opts),
+      (peer: PeerId, protocol: string, opts: any) => dialHelper(source, peer, protocol, opts) as any,
       {} as any,
       {} as any,
-      (protocol: string, handler: (handler: Handler) => void) => handle(source, protocol, handler),
+      (protocol: string, handler: (handler: HandlerProps) => void) => handle(source, protocol, handler),
       source,
       {
         upgradeInbound: async (conn: RelayConnection) => {

@@ -1,12 +1,11 @@
-/// <reference path="./@types/libp2p.ts" />
-
-import debug from 'debug'
+import Debug from 'debug'
 import { CODE_IP4, CODE_IP6, CODE_P2P, USE_WEBRTC } from './constants'
 import { AbortError } from 'abortable-iterator'
 import type { Multiaddr } from 'multiaddr'
 import PeerId from 'peer-id'
-import type { Upgrader, DialOptions, ConnHandler, default as libp2p } from 'libp2p'
-import { Transport, Connection } from 'libp2p-interfaces'
+import type { Upgrader } from 'libp2p-interfaces/src/transport/types'
+import type { default as libp2p, Connection } from 'libp2p'
+import { Transport } from 'libp2p-interfaces/src/transport/types'
 import chalk from 'chalk'
 import { TCPConnection, Listener } from './base'
 import { WebRTCUpgrader } from './webrtc'
@@ -17,8 +16,8 @@ import { dialHelper } from './utils'
 
 import type { PublicNodesEmitter, PeerStoreType } from './types'
 
-const log = debug('hopr-connect')
-const verbose = debug('hopr-connect:verbose')
+const log = Debug('hopr-connect')
+const verbose = Debug('hopr-connect:verbose')
 
 export type HoprConnectOptions = {
   publicNodes?: PublicNodesEmitter
@@ -32,7 +31,7 @@ export type HoprConnectOptions = {
 /**
  * @class HoprConnect
  */
-class HoprConnect implements Transport {
+class HoprConnect implements Transport<{ signal?: AbortSignal }, any> {
   get [Symbol.toStringTag]() {
     return 'HoprConnect'
   }
@@ -54,7 +53,7 @@ class HoprConnect implements Transport {
   private _addressFilter: Filter
   private _libp2p: libp2p
 
-  private connHandler?: ConnHandler
+  private connHandler: ((conn: Connection) => void) | undefined
 
   constructor(
     opts: {
@@ -91,7 +90,7 @@ class HoprConnect implements Transport {
 
     this.relay = new Relay(
       (peer: PeerId, protocol: string, options: { timeout: number } | { signal: AbortSignal }) =>
-        dialHelper(opts.libp2p, peer, protocol, options as any),
+        dialHelper(opts.libp2p, peer, protocol, options as any) as any,
       opts.libp2p.dialer,
       opts.libp2p.connectionManager,
       opts.libp2p.handle.bind(opts.libp2p),
@@ -152,7 +151,7 @@ class HoprConnect implements Transport {
    * @param options optional dial options
    * @returns An upgraded Connection
    */
-  async dial(ma: Multiaddr, options: DialOptions = {}): Promise<Connection> {
+  async dial(ma: Multiaddr, options: { signal?: AbortSignal } = {}): Promise<Connection> {
     if (options.signal?.aborted) {
       throw new AbortError()
     }
@@ -239,14 +238,18 @@ class HoprConnect implements Transport {
    * @param relays potential relays that we can use
    * @param options optional dial options
    */
-  private async dialWithRelay(relay: PeerId, destination: PeerId, options?: DialOptions): Promise<Connection> {
+  private async dialWithRelay(
+    relay: PeerId,
+    destination: PeerId,
+    options: { signal?: AbortSignal }
+  ): Promise<Connection> {
     let conn = await this.relay.connect(relay, destination, options)
 
     if (conn == undefined) {
       throw Error(`Could not establish relayed connection.`)
     }
 
-    return await this._upgrader.upgradeOutbound(conn)
+    return await this._upgrader.upgradeOutbound(conn as any)
   }
 
   /**
@@ -254,13 +257,13 @@ class HoprConnect implements Transport {
    * @param ma destination
    * @param options optional dial options
    */
-  private async dialDirectly(ma: Multiaddr, options?: DialOptions): Promise<Connection> {
+  private async dialDirectly(ma: Multiaddr, options?: { signal?: AbortSignal }): Promise<Connection> {
     const maConn = await TCPConnection.create(ma, this._peerId, options)
 
     verbose(
       `Establishing a direct connection to ${maConn.remoteAddr.toString()} was successful. Continuing with the handshake.`
     )
-    return await this._upgrader.upgradeOutbound(maConn)
+    return await this._upgrader.upgradeOutbound(maConn as any)
   }
 
   /**

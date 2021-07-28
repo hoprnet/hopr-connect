@@ -1,5 +1,4 @@
 /// <reference path="../@types/stream-to-it.ts" />
-/// <reference path="../@types/libp2p.ts" />
 
 import net from 'net'
 import abortable, { AbortError } from 'abortable-iterator'
@@ -14,18 +13,20 @@ const verbose = Debug('hopr-connect:verbose:tcp')
 
 export const SOCKET_CLOSE_TIMEOUT = 1000
 
-import type { MultiaddrConnection, DialOptions, StreamType } from 'libp2p'
+import type { MultiaddrConnection } from 'libp2p-interfaces/src/transport/types'
+
 import { Multiaddr } from 'multiaddr'
 import toIterable from 'stream-to-it'
 import { toU8aStream } from '../utils'
 import type PeerId from 'peer-id'
-import type { Stream } from '../types'
+import type { Stream, StreamType } from '../types'
 
 /**
  * Class to encapsulate TCP sockets
  */
 class TCPConnection implements MultiaddrConnection {
   public localAddr: Multiaddr
+  // @ts-ignore
   public sink: Stream['sink']
   public source: Stream['source']
 
@@ -38,7 +39,7 @@ class TCPConnection implements MultiaddrConnection {
     close?: number
   }
 
-  constructor(public remoteAddr: Multiaddr, self: PeerId, public conn: Socket, options?: DialOptions) {
+  constructor(public remoteAddr: Multiaddr, self: PeerId, public conn: Socket, options?: { signal: AbortSignal }) {
     this.localAddr = Multiaddr.fromNodeAddress(nodeToMultiaddr(this.conn.address() as AddressInfo), 'tcp').encapsulate(
       `/p2p/${self.toB58String()}`
     )
@@ -128,12 +129,12 @@ class TCPConnection implements MultiaddrConnection {
    * @param options.signal Used to abort dial requests
    * @returns Resolves a TCP Socket
    */
-  public static create(ma: Multiaddr, self: PeerId, options?: DialOptions): Promise<MultiaddrConnection> {
+  public static create(ma: Multiaddr, self: PeerId, options?: { signal?: AbortSignal }): Promise<TCPConnection> {
     if (options?.signal?.aborted) {
       throw new AbortError()
     }
 
-    return new Promise<MultiaddrConnection>((resolve, reject) => {
+    return new Promise<TCPConnection>((resolve, reject) => {
       const start = Date.now()
       const cOpts = ma.toOptions()
 

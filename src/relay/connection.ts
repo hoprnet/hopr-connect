@@ -1,7 +1,5 @@
-/// <reference path="../@types/libp2p.ts" />
-
 import { Multiaddr } from 'multiaddr'
-import type { MultiaddrConnection } from 'libp2p'
+import type { MultiaddrConnection } from 'libp2p-interfaces/src/transport/types'
 import type { Stream, StreamResult } from '../types'
 import { randomBytes } from 'crypto'
 import type { DeferredPromise } from 'p-defer'
@@ -103,6 +101,7 @@ class RelayConnection extends EventEmitter implements MultiaddrConnection {
   private _counterparty: PeerId
 
   public source: Stream['source']
+  // @ts-ignore
   public sink: Stream['sink']
 
   public conn: Stream

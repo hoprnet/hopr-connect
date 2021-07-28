@@ -6,11 +6,13 @@ const testsTransport = require('libp2p-interfaces/src/transport/tests')
 import { HoprConnect } from '../src'
 import PeerId from 'peer-id'
 
-import libp2p, { Handler, MultiaddrConnection, Upgrader } from 'libp2p'
+import type { MultiaddrConnection, Upgrader } from 'libp2p-interfaces/src/transport/types'
+import type { HandlerProps } from 'libp2p'
+import libp2p from 'libp2p'
 
 const SECIO = require('libp2p-secio')
 const MPLEX = require('libp2p-mplex')
-const Upgrader = require('libp2p/src/upgrader')
+import UpgraderClass from 'libp2p/src/upgrader'
 
 import { Alice, Bob, Charly, Dave } from '../tests/identities'
 
@@ -33,7 +35,7 @@ async function startBootstrapServer(privKey: Uint8Array, port: number): Promise<
 }
 
 async function myUpgrader(pId: PeerId): Promise<Upgrader> {
-  return new Upgrader({
+  return new UpgraderClass({
     localPeer: pId,
     metrics: undefined,
     cryptos: new Map([[SECIO.protocol, SECIO]]),
@@ -45,7 +47,7 @@ async function startClient(privKey: Uint8Array, port: number, bootstrapAddress: 
   const node = await libp2p.create({
     peerId: await PeerId.createFromPrivKey(privKey),
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${port}`)]
+      listen: [`/ip4/0.0.0.0/tcp/${port}`]
     },
     modules: {
       transport: [HoprConnect],
@@ -113,10 +115,10 @@ describe('libp2p compliance', () => {
             }
           },
           protocols: upgrader.protocols
-        },
+        } as Upgrader,
         libp2p: {
           peerId: await PeerId.createFromPrivKey(Bob),
-          handle: (protocols: string | string[], handler: Handler) => {
+          handle: (protocols: string | string[], handler: HandlerProps) => {
             protocols = Array.isArray(protocols) ? protocols : [protocols]
             protocols.forEach((protocol: string) => {
               upgrader.protocols.set(protocol, handler)
@@ -138,7 +140,12 @@ describe('libp2p compliance', () => {
           },
           multiaddrs: []
         } as any,
-        bootstrapServers: [new Multiaddr(`/ip4/127.0.0.1/tcp/9092/p2p/${await PeerId.createFromPrivKey(Alice)}`)],
+        initialNodes: [
+          {
+            id: await PeerId.createFromPrivKey(Alice),
+            multiaddrs: [new Multiaddr(`/ip4/127.0.0.1/tcp/9092/p2p/${await PeerId.createFromPrivKey(Alice)}`)]
+          }
+        ],
         __noDirectConnections: true
       })
 

@@ -1,6 +1,3 @@
-/// <reference path="../@types/libp2p.ts" />
-/// <reference path="../@types/libp2p-interfaces.ts" />
-
 import { createServer } from 'net'
 import type { AddressInfo, Socket as TCPSocket, Server } from 'net'
 import { createSocket } from 'dgram'
@@ -15,9 +12,13 @@ import { NetworkInterfaceInfo, networkInterfaces } from 'os'
 import AbortController from 'abort-controller'
 import type { AbortSignal } from 'abort-controller'
 import { CODE_P2P, CODE_IP4, CODE_IP6, CODE_TCP, CODE_UDP, RELAY_CONTACT_TIMEOUT } from '../constants'
-import type { Connection, ConnHandler, MultiaddrConnection, Upgrader } from 'libp2p'
+import type { Connection } from 'libp2p'
+import type {
+  MultiaddrConnection,
+  Upgrader,
+  Listener as InterfaceListener
+} from 'libp2p-interfaces/src/transport/types'
 
-import type { Listener as InterfaceListener } from 'libp2p-interfaces'
 import type PeerId from 'peer-id'
 import { Multiaddr } from 'multiaddr'
 
@@ -91,7 +92,7 @@ class Listener extends EventEmitter implements InterfaceListener {
   }
 
   constructor(
-    private handler: ConnHandler | undefined,
+    private handler: ((conn: Connection) => void) | undefined,
     private upgrader: Upgrader,
     publicNodes: PublicNodesEmitter | undefined,
     private initialNodes: PeerStoreType[] = [],
@@ -393,7 +394,7 @@ class Listener extends EventEmitter implements InterfaceListener {
       }
     }
 
-    maConn.conn.once('close', untrackConn)
+    ;(maConn.conn as EventEmitter).once('close', untrackConn)
   }
 
   /**
@@ -408,10 +409,12 @@ class Listener extends EventEmitter implements InterfaceListener {
     let conn: Connection
 
     try {
-      maConn = TCPConnection.fromSocket(socket, this.peerId)
+      maConn = TCPConnection.fromSocket(socket, this.peerId) as any
     } catch (err) {
       error(`inbound connection failed. ${err.message}`)
+    }
 
+    if (maConn == undefined) {
       socket.destroy()
       return
     }
@@ -651,7 +654,7 @@ class Listener extends EventEmitter implements InterfaceListener {
 
   private async connectToRelay(relay: Multiaddr, opts?: { signal: AbortSignal }): Promise<number> {
     let conn: Connection | undefined
-    let maConn: MultiaddrConnection | undefined
+    let maConn: TCPConnection | undefined
 
     const start = Date.now()
 
@@ -659,7 +662,7 @@ class Listener extends EventEmitter implements InterfaceListener {
       maConn = await TCPConnection.create(relay, this.peerId, opts)
     } catch (err) {
       if (maConn != undefined) {
-        await attemptClose(maConn)
+        await attemptClose(maConn as any)
       }
     }
 
@@ -668,7 +671,7 @@ class Listener extends EventEmitter implements InterfaceListener {
     }
 
     try {
-      conn = await this.upgrader.upgradeOutbound(maConn)
+      conn = await this.upgrader.upgradeOutbound(maConn as any)
     } catch (err) {
       if (err.code === 'ERR_ENCRYPTION_FAILED') {
         error(
@@ -690,7 +693,7 @@ class Listener extends EventEmitter implements InterfaceListener {
       return -1
     }
 
-    this.trackConn(maConn)
+    this.trackConn(maConn as any)
 
     this.handler?.(conn)
 

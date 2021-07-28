@@ -1,8 +1,10 @@
 /// <reference path="../@types/stream-to-it.ts" />
-/// <reference path="../@types/libp2p.ts" />
 
-import type { ConnectionManager, DialOptions, MultiaddrConnection } from 'libp2p'
-import Defer, { DeferredPromise } from 'p-defer'
+import type { MultiaddrConnection } from 'libp2p-interfaces/src/transport/types'
+
+import type ConnectionManager from 'libp2p/src/connection-manager'
+import Defer from 'p-defer'
+import type { DeferredPromise } from 'p-defer'
 
 import type { Instance as SimplePeer } from 'simple-peer'
 import type PeerId from 'peer-id'
@@ -14,7 +16,6 @@ import { randomBytes } from 'crypto'
 import { toU8aStream, encodeWithLengthPrefix, decodeWithLengthPrefix, eagerIterator } from '../utils'
 import abortable from 'abortable-iterator'
 import type { Stream, StreamResult } from '../types'
-
 
 const DEBUG_PREFIX = `hopr-connect`
 
@@ -57,6 +58,7 @@ class WebRTCConnection implements MultiaddrConnection {
   public remoteAddr: MultiaddrConnection['remoteAddr']
   public localAddr: MultiaddrConnection['localAddr']
 
+  // @ts-ignore
   public sink: Stream['sink']
   public source: Stream['source']
 
@@ -71,7 +73,7 @@ class WebRTCConnection implements MultiaddrConnection {
     private connectionManager: ConnectionManager,
     private relayConn: RelayConnection,
     private channel: SimplePeer,
-    private options?: DialOptions & { __noWebRTCUpgrade?: boolean }
+    private options?: { signal?: AbortSignal } & { __noWebRTCUpgrade?: boolean }
   ) {
     this.conn = relayConn
 
@@ -253,7 +255,7 @@ class WebRTCConnection implements MultiaddrConnection {
               // 1. Handle stream handover
               // 2. Handle stream messages
               this.verbose(`FLOW: webrtc sink: awaiting promises`)
-              result = await Promise.race(promises) as SinkType
+              result = (await Promise.race(promises)) as SinkType
               this.verbose(`FLOW: webrtc sink: promise resolved ${resolvedPromiseName}`)
 
               // Source got attached

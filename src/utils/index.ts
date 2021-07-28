@@ -1,6 +1,4 @@
-/// <reference path="../@types/libp2p.ts" />
-
-import type { Handler } from 'libp2p'
+import type { HandlerProps } from 'libp2p'
 import type LibP2P from 'libp2p'
 import type { Stream, StreamType } from '../types'
 import Debug from 'debug'
@@ -75,7 +73,7 @@ export async function dialHelper(
         timeout: number
         signal?: AbortSignal
       }
-): Promise<Handler | undefined> {
+): Promise<Omit<HandlerProps, 'connection'> | undefined> {
   let signal: AbortSignal
   let timeout: NodeJS.Timeout | undefined
   if (opts.signal == undefined) {
@@ -90,7 +88,7 @@ export async function dialHelper(
   }
 
   let err: any
-  let struct: Handler | undefined
+  let struct: Omit<HandlerProps, 'connection'> | undefined
   try {
     struct = await libp2p.dialProtocol(destination, protocol, { signal })
   } catch (_err) {
