@@ -47,7 +47,8 @@ class Relay {
     private connHandler: ConnHandler | undefined,
     private webRTCUpgrader?: WebRTCUpgrader,
     private __noWebRTCUpgrade?: boolean,
-    private maxRelayedConnections: number = DEFAULT_MAX_RELAYED_CONNECTIONS
+    private maxRelayedConnections: number = DEFAULT_MAX_RELAYED_CONNECTIONS,
+    private __relayFreeTimeout?: number
   ) {
     this.relayState = new RelayState()
 
@@ -68,13 +69,14 @@ class Relay {
         log(`relayed request rejected, already at max capacity (${this.maxRelayedConnections})`)
         shaker.reject(RelayHandshakeMessage.FAIL_RELAY_FULL)
       } else {
-        shaker.negotiate(
-          connection.remotePeer,
+        shaker.negotiate(          
+          connection.remotePeer,          
           (counterparty: PeerId) => this.contactCounterparty(counterparty),
           this.relayState.exists.bind(this.relayState),
           this.relayState.isActive.bind(this.relayState),
           this.relayState.updateExisting.bind(this.relayState),
-          this.relayState.createNew.bind(this.relayState)
+          this.relayState.createNew.bind(this.relayState),
+          this.__relayFreeTimeout,
         )
       }
     })

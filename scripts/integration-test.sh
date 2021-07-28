@@ -199,8 +199,8 @@ start_node tests/node.ts "${charly_log}" \
   --identityName 'charly' \
   --noDirectConnections true \
   --noWebRTCUpgrade false \
-  --maxRelayedConnections 1
-
+  --maxRelayedConnections 1 \
+  --relayFreeTimeout 2000 # to simulate relay being busy
 
 # run dave (client)
 # should try connecting to bob through relay charly and get RELAY_FULL error
