@@ -303,9 +303,7 @@ class WebRTCConnection implements MultiaddrConnection {
         )
       )
     )
-    this.verbose(`FLOW: waiting before sending UPGRADED`)
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    this.verbose(`FLOW: finished waiting`)
+    this.verbose(`FLOW: sending UPGRADED to relay`)
     this.relayConn.sendUpgraded()
 
     // Either stream is finished or WebRTC is available
