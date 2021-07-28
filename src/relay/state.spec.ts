@@ -54,7 +54,6 @@ describe('relay state management', function () {
     })
 
     state.createNew(
-      0,
       initiator,
       destination,
       {
@@ -157,7 +156,6 @@ describe('relay state management', function () {
     })
 
     state.createNew(
-      0, 
       initiator,
       destination,
       {
