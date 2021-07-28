@@ -12,6 +12,10 @@ import pushable from 'it-pushable'
 
 import { EventEmitter } from 'events'
 import assert from 'assert'
+import chai, { expect } from 'chai'
+import spies from 'chai-spies'
+
+chai.use(spies)
 
 // const Alice = privKeyToPeerId(stringToU8a(`0xf8860ccb336f4aad751f55765b4adbefc538f8560c21eed6fbc9940d0584eeca`))
 const Bob = privKeyToPeerId(stringToU8a(`0xf8860ccb336f4aad751f55765b4adbefc538f8560c21eed6fbc9940d0584eeca`))
@@ -51,6 +55,46 @@ describe('test webrtc connection', function () {
 
       assert(u8aEquals((await AliceShaker.read()).slice(), secondMessage))
     }
+  })
+
+  it('sends UPGRADED to the relayed connection', async function () {
+    const AliceBob = Pair()
+    const BobAlice = Pair()
+
+    const sendUpgradedSpy = chai.spy()
+
+    const conn = new WebRTCConnection(
+      Bob,
+      { connections: new Map() } as any,
+      {
+        source: BobAlice.source,
+        sink: AliceBob.sink,
+        sendUpgraded: sendUpgradedSpy
+      } as any,
+      new EventEmitter() as any
+    )
+
+    const AliceShaker = handshake<Uint8Array>(conn)
+    const BobShaker = handshake<Uint8Array>({
+      source: AliceBob.source,
+      sink: BobAlice.sink
+    })
+    
+    const ATTEMPTS = 5
+
+    for (let i = 0; i < ATTEMPTS; i++) {
+      const firstMessage = new TextEncoder().encode(`first message`)
+      AliceShaker.write(firstMessage)
+
+      assert(u8aEquals((await BobShaker.read()).slice(), Uint8Array.from([MigrationStatus.NOT_DONE, ...firstMessage])))
+
+      const secondMessage = new TextEncoder().encode(`second message`)
+      BobShaker.write(Uint8Array.from([MigrationStatus.NOT_DONE, ...secondMessage]))
+
+      assert(u8aEquals((await AliceShaker.read()).slice(), secondMessage))
+    }
+    
+    expect(sendUpgradedSpy).to.have.been.called.once
   })
 
   it('send DONE after webRTC connect event', async function () {
