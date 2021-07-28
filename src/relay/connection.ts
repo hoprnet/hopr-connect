@@ -1,15 +1,16 @@
 /// <reference path="../@types/libp2p.ts" />
 
 import { Multiaddr } from 'multiaddr'
-import type { MultiaddrConnection, Stream, StreamResult } from 'libp2p'
+import type { MultiaddrConnection } from 'libp2p'
+import type { Stream, StreamResult } from '../types'
 import { randomBytes } from 'crypto'
-import Defer, { DeferredPromise } from 'p-defer'
+import type { DeferredPromise } from 'p-defer'
+import Defer from 'p-defer'
 import { RelayPrefix, ConnectionStatusMessages, StatusMessages } from '../constants'
 import { u8aEquals, u8aToHex } from '@hoprnet/hopr-utils'
 import Heap from 'heap-js'
 
 import type { Instance as SimplePeer } from 'simple-peer'
-
 import type PeerId from 'peer-id'
 
 import Debug from 'debug'

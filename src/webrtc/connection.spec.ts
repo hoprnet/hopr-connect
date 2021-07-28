@@ -12,14 +12,15 @@ import pushable from 'it-pushable'
 
 import { EventEmitter } from 'events'
 import assert from 'assert'
+import { StreamType } from '../types'
 
 // const Alice = privKeyToPeerId(stringToU8a(`0xf8860ccb336f4aad751f55765b4adbefc538f8560c21eed6fbc9940d0584eeca`))
 const Bob = privKeyToPeerId(stringToU8a(`0xf8860ccb336f4aad751f55765b4adbefc538f8560c21eed6fbc9940d0584eeca`))
 
 describe('test webrtc connection', function () {
   it('exchange messages without upgrade', async function () {
-    const AliceBob = Pair()
-    const BobAlice = Pair()
+    const AliceBob = Pair<StreamType>()
+    const BobAlice = Pair<StreamType>()
 
     const conn = new WebRTCConnection(
       Bob,
@@ -31,8 +32,8 @@ describe('test webrtc connection', function () {
       new EventEmitter() as any
     )
 
-    const AliceShaker = handshake<Uint8Array>(conn)
-    const BobShaker = handshake<Uint8Array>({
+    const AliceShaker = handshake(conn)
+    const BobShaker = handshake({
       source: AliceBob.source,
       sink: BobAlice.sink
     })
@@ -53,8 +54,8 @@ describe('test webrtc connection', function () {
   })
 
   it('send DONE after webRTC connect event', async function () {
-    const AliceBob = Pair()
-    const BobAlice = Pair()
+    const AliceBob = Pair<StreamType>()
+    const BobAlice = Pair<StreamType>()
 
     const webRTCInstance = new EventEmitter()
 
@@ -68,7 +69,7 @@ describe('test webrtc connection', function () {
       webRTCInstance as any
     )
 
-    const BobShaker = handshake<Uint8Array>({
+    const BobShaker = handshake({
       source: AliceBob.source,
       sink: BobAlice.sink
     })
@@ -79,8 +80,8 @@ describe('test webrtc connection', function () {
   })
 
   it('sending messages after webRTC error event', async function () {
-    const AliceBob = Pair()
-    const BobAlice = Pair()
+    const AliceBob = Pair<StreamType>()
+    const BobAlice = Pair<StreamType>()
 
     const webRTCInstance = new EventEmitter()
 
@@ -98,8 +99,8 @@ describe('test webrtc connection', function () {
       webRTCInstance as any
     )
 
-    const AliceShaker = handshake<Uint8Array>(conn)
-    const BobShaker = handshake<Uint8Array>({
+    const AliceShaker = handshake(conn)
+    const BobShaker = handshake({
       source: AliceBob.source,
       sink: BobAlice.sink
     })
@@ -118,8 +119,8 @@ describe('test webrtc connection', function () {
   })
 
   it('exchange messages and send DONE after webRTC connect event', async function () {
-    const AliceBob = Pair()
-    const BobAlice = Pair()
+    const AliceBob = Pair<StreamType>()
+    const BobAlice = Pair<StreamType>()
 
     const webRTCInstance = new EventEmitter()
 
@@ -133,8 +134,8 @@ describe('test webrtc connection', function () {
       webRTCInstance as any
     )
 
-    const AliceShaker = handshake<Uint8Array>(conn)
-    const BobShaker = handshake<Uint8Array>({
+    const AliceShaker = handshake(conn)
+    const BobShaker = handshake({
       source: AliceBob.source,
       sink: BobAlice.sink
     })
@@ -155,11 +156,11 @@ describe('test webrtc connection', function () {
   })
 
   it('exchange messages through webRTC', async function () {
-    const AliceBob = Pair()
-    const BobAlice = Pair()
+    const AliceBob = Pair<StreamType>()
+    const BobAlice = Pair<StreamType>()
 
-    const BobAliceWebRTC = pushable<Uint8Array>()
-    const AliceBobWebRTC = pushable<Uint8Array>()
+    const BobAliceWebRTC = pushable<StreamType>()
+    const AliceBobWebRTC = pushable<StreamType>()
 
     const webRTCInstance = new EventEmitter()
 
@@ -192,8 +193,8 @@ describe('test webrtc connection', function () {
       webRTCInstance as any
     )
 
-    const AliceShaker = handshake<Uint8Array>(conn)
-    const BobShaker = handshake<Uint8Array>({
+    const AliceShaker = handshake(conn)
+    const BobShaker = handshake({
       source: AliceBob.source,
       sink: BobAlice.sink
     })

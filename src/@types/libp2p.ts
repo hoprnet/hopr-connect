@@ -45,9 +45,9 @@ declare module 'libp2p' {
 
   export type StreamResult = IteratorResult<StreamType, void>
 
-  export type Stream = {
+  export type Stream<T = StreamType> = {
     sink: (source: Stream['source']) => Promise<void>
-    source: AsyncGenerator<StreamType, void>
+    source: AsyncGenerator<T, void>
   }
 
   export type Handler = {

@@ -14,11 +14,12 @@ const verbose = Debug('hopr-connect:verbose:tcp')
 
 export const SOCKET_CLOSE_TIMEOUT = 1000
 
-import type { MultiaddrConnection, Stream, DialOptions, StreamType } from 'libp2p'
+import type { MultiaddrConnection, DialOptions, StreamType } from 'libp2p'
 import { Multiaddr } from 'multiaddr'
 import toIterable from 'stream-to-it'
 import { toU8aStream } from '../utils'
-import { PeerId } from 'libp2p-interfaces'
+import type PeerId from 'peer-id'
+import type { Stream } from '../types'
 
 /**
  * Class to encapsulate TCP sockets

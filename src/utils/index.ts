@@ -1,7 +1,8 @@
 /// <reference path="../@types/libp2p.ts" />
 
-import type { Stream, StreamType, Handler } from 'libp2p'
+import type { Handler } from 'libp2p'
 import type LibP2P from 'libp2p'
+import type { Stream, StreamType } from '../types'
 import Debug from 'debug'
 import AbortController, { AbortSignal } from 'abort-controller'
 import PeerId from 'peer-id'
@@ -14,7 +15,7 @@ const error = Debug('hopr-connect:dialer:error')
 export * from './network'
 export { encodeWithLengthPrefix, decodeWithLengthPrefix } from './lengthPrefix'
 
-type MyStream = AsyncGenerator<StreamType | Buffer | string, void>
+type MyStream = StreamType | string
 
 const DEFAULT_DHT_QUERY_TIMEOUT = 2000 // ms
 
@@ -23,7 +24,7 @@ const DEFAULT_DHT_QUERY_TIMEOUT = 2000 // ms
  * @param source a stream
  * @returns a stream of Uint8Arrays
  */
-export function toU8aStream(source: MyStream): Stream['source'] {
+export function toU8aStream(source: Stream<MyStream>['source']): Stream['source'] {
   return (async function* () {
     for await (const msg of source) {
       if (typeof msg === 'string') {

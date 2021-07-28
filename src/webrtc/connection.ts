@@ -1,7 +1,7 @@
 /// <reference path="../@types/stream-to-it.ts" />
 /// <reference path="../@types/libp2p.ts" />
 
-import type { ConnectionManager, DialOptions, MultiaddrConnection, Stream, StreamResult } from 'libp2p'
+import type { ConnectionManager, DialOptions, MultiaddrConnection } from 'libp2p'
 import Defer, { DeferredPromise } from 'p-defer'
 
 import type { Instance as SimplePeer } from 'simple-peer'
@@ -13,6 +13,8 @@ import type { RelayConnection } from '../relay/connection'
 import { randomBytes } from 'crypto'
 import { toU8aStream, encodeWithLengthPrefix, decodeWithLengthPrefix, eagerIterator } from '../utils'
 import abortable from 'abortable-iterator'
+import type { Stream, StreamResult } from '../types'
+
 
 const DEBUG_PREFIX = `hopr-connect`
 
@@ -196,7 +198,7 @@ class WebRTCConnection implements MultiaddrConnection {
     type SinkType = Stream['source'] | StreamResult | void
 
     let source: Stream['source'] | undefined
-    let sourcePromise: Promise<StreamResult> | undefined
+    let sourcePromise: ReturnType<Stream['source']['next']> | void
 
     let sourceAttached = false
 
@@ -224,7 +226,7 @@ class WebRTCConnection implements MultiaddrConnection {
 
               const pushPromise = (promise: Promise<SinkType>, name: string) => {
                 promises.push(
-                  promise.then((res) => {
+                  promise.then((res: any) => {
                     resolvedPromiseName = name
                     return res
                   })
@@ -251,7 +253,7 @@ class WebRTCConnection implements MultiaddrConnection {
               // 1. Handle stream handover
               // 2. Handle stream messages
               this.verbose(`FLOW: webrtc sink: awaiting promises`)
-              result = await Promise.race(promises)
+              result = await Promise.race(promises) as SinkType
               this.verbose(`FLOW: webrtc sink: promise resolved ${resolvedPromiseName}`)
 
               // Source got attached

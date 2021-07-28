@@ -22,10 +22,11 @@ import { RELAY_CIRCUIT_TIMEOUT, RELAY, DELIVERY } from '../constants'
 import { RelayConnection } from './connection'
 
 import type { Connection } from 'libp2p-interfaces'
-import type { DialOptions, Handler, Stream, ConnHandler, Dialer, ConnectionManager, Upgrader } from 'libp2p'
+import type { DialOptions, Handler, ConnHandler, Dialer, ConnectionManager, Upgrader } from 'libp2p'
 import { AbortError } from 'abortable-iterator'
 import { RelayHandshake, RelayHandshakeMessage } from './handshake'
 import { RelayState } from './state'
+import type { Stream } from '../types'
 
 /**
  * API interface for relayed connections

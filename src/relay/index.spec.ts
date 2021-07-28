@@ -4,13 +4,14 @@
 
 import { Relay } from './index'
 import PeerId from 'peer-id'
-import { Handler, Stream, StreamType } from 'libp2p'
+import { Handler } from 'libp2p'
 import Pair from 'it-pair'
 import EventEmitter from 'events'
 import { privKeyToPeerId, stringToU8a, u8aEquals } from '@hoprnet/hopr-utils'
 import handshake from 'it-handshake'
 import { RelayConnection } from './connection'
 import assert from 'assert'
+import type { Stream, StreamType } from '../types'
 
 const initiator = privKeyToPeerId(stringToU8a('0xa889bad3e2a31cceff4faccdd374af67db485ac0e05e7e654530aff0da5199f7'))
 const relay = privKeyToPeerId(stringToU8a('0xcd1fb76053833d9bb5b3ff243b2d17b96dc5ad7cc09b33c4cf77ba83c297443f'))
@@ -27,7 +28,7 @@ describe('test relay', function () {
     let sourceToPeer: Stream
     let peerToSource: Stream
 
-    const [connA, connB] = [Pair(), Pair()]
+    const [connA, connB] = [Pair<StreamType>(), Pair<StreamType>()]
     sourceToPeer = {
       source: connB.source,
       sink: connA.sink

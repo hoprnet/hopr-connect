@@ -1,12 +1,14 @@
 /// <reference path="../@types/libp2p.ts" />
 /// <reference path="../@types/libp2p-interfaces.ts" />
 
-import net, { AddressInfo, Socket as TCPSocket } from 'net'
-import dgram, { RemoteInfo } from 'dgram'
+import { createServer } from 'net'
+import type { AddressInfo, Socket as TCPSocket, Server } from 'net'
+import { createSocket } from 'dgram'
+import type { RemoteInfo, Socket as UDPSocket } from 'dgram'
 
 import { once, EventEmitter } from 'events'
 import { PeerStoreType, PublicNodesEmitter } from '../types'
-import debug from 'debug'
+import Debug from 'debug'
 import { green, red } from 'chalk'
 import { NetworkInterfaceInfo, networkInterfaces } from 'os'
 
@@ -24,9 +26,9 @@ import { getAddrs } from './addrs'
 import { isAnyAddress } from '../utils'
 import { TCPConnection } from './tcp'
 
-const log = debug('hopr-connect:listener')
-const error = debug('hopr-connect:listener:error')
-const verbose = debug('hopr-connect:verbose:listener')
+const log = Debug('hopr-connect:listener')
+const error = Debug('hopr-connect:listener:error')
+const verbose = Debug('hopr-connect:verbose:listener')
 
 // @TODO to be adjusted
 const MAX_RELAYS_PER_NODE = 7
@@ -73,8 +75,8 @@ type Address = { port: number; address: string }
 
 class Listener extends EventEmitter implements InterfaceListener {
   private __connections: MultiaddrConnection[]
-  private tcpSocket: net.Server
-  private udpSocket: dgram.Socket
+  private tcpSocket: Server
+  private udpSocket: UDPSocket
 
   private state: State
 
@@ -103,8 +105,8 @@ class Listener extends EventEmitter implements InterfaceListener {
     this.__connections = []
     this.upgrader = upgrader
 
-    this.tcpSocket = net.createServer()
-    this.udpSocket = dgram.createSocket({
+    this.tcpSocket = createServer()
+    this.udpSocket = createSocket({
       // @TODO
       // `udp6` does not seem to work in Node 12.x
       // can receive IPv6 packet and IPv4 after reconnecting the socket
