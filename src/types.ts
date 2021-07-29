@@ -55,3 +55,5 @@ export type Stream<T = StreamType> = {
 }
 
 export type StreamResult = PromiseValue<ReturnType<Stream['source']['next']>>
+
+export type DialOptions = { signal?: AbortSignal }

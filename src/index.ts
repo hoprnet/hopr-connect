@@ -14,7 +14,7 @@ import { Discovery } from './discovery'
 import { Filter } from './filter'
 import { dialHelper } from './utils'
 
-import type { PublicNodesEmitter, PeerStoreType } from './types'
+import type { PublicNodesEmitter, PeerStoreType, DialOptions } from './types'
 
 const log = Debug('hopr-connect')
 const verbose = Debug('hopr-connect:verbose')
@@ -31,7 +31,7 @@ export type HoprConnectOptions = {
 /**
  * @class HoprConnect
  */
-class HoprConnect implements Transport<{ signal?: AbortSignal }, any> {
+class HoprConnect implements Transport<DialOptions, undefined> {
   get [Symbol.toStringTag]() {
     return 'HoprConnect'
   }
@@ -151,7 +151,7 @@ class HoprConnect implements Transport<{ signal?: AbortSignal }, any> {
    * @param options optional dial options
    * @returns An upgraded Connection
    */
-  async dial(ma: Multiaddr, options: { signal?: AbortSignal } = {}): Promise<Connection> {
+  async dial(ma: Multiaddr, options: DialOptions = {}): Promise<Connection> {
     if (options.signal?.aborted) {
       throw new AbortError()
     }
@@ -238,11 +238,7 @@ class HoprConnect implements Transport<{ signal?: AbortSignal }, any> {
    * @param relays potential relays that we can use
    * @param options optional dial options
    */
-  private async dialWithRelay(
-    relay: PeerId,
-    destination: PeerId,
-    options: { signal?: AbortSignal }
-  ): Promise<Connection> {
+  private async dialWithRelay(relay: PeerId, destination: PeerId, options: DialOptions): Promise<Connection> {
     let conn = await this.relay.connect(relay, destination, options)
 
     if (conn == undefined) {
@@ -257,7 +253,7 @@ class HoprConnect implements Transport<{ signal?: AbortSignal }, any> {
    * @param ma destination
    * @param options optional dial options
    */
-  private async dialDirectly(ma: Multiaddr, options?: { signal?: AbortSignal }): Promise<Connection> {
+  private async dialDirectly(ma: Multiaddr, options?: DialOptions): Promise<Connection> {
     const maConn = await TCPConnection.create(ma, this._peerId, options)
 
     verbose(

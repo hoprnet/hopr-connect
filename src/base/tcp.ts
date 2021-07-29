@@ -17,7 +17,7 @@ import { Multiaddr } from 'multiaddr'
 import toIterable from 'stream-to-it'
 import { toU8aStream } from '../utils'
 import type PeerId from 'peer-id'
-import type { Stream, StreamType } from '../types'
+import type { Stream, StreamType, DialOptions } from '../types'
 
 /**
  * Class to encapsulate TCP sockets
@@ -127,7 +127,7 @@ class TCPConnection implements MultiaddrConnection {
    * @param options.signal Used to abort dial requests
    * @returns Resolves a TCP Socket
    */
-  public static create(ma: Multiaddr, self: PeerId, options?: { signal?: AbortSignal }): Promise<TCPConnection> {
+  public static create(ma: Multiaddr, self: PeerId, options?: DialOptions): Promise<TCPConnection> {
     if (options?.signal?.aborted) {
       throw new AbortError()
     }

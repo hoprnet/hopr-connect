@@ -25,7 +25,7 @@ import type { HandlerProps, Connection } from 'libp2p'
 import { AbortError } from 'abortable-iterator'
 import { RelayHandshake, RelayHandshakeMessage } from './handshake'
 import { RelayState } from './state'
-import type { Stream } from '../types'
+import type { Stream, DialOptions } from '../types'
 
 /**
  * API interface for relayed connections
@@ -90,7 +90,7 @@ class Relay {
   public async connect(
     relay: PeerId,
     destination: PeerId,
-    options?: { signal?: AbortSignal }
+    options?: DialOptions
   ): Promise<RelayConnection | WebRTCConnection | undefined> {
     const opts =
       options != undefined && options.signal != undefined
