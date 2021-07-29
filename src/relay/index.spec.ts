@@ -72,7 +72,7 @@ describe('test relay', function () {
       source,
       {
         upgradeInbound: async (conn: RelayConnection) => {
-          const shaker = handshake<StreamType>(conn)
+          const shaker = handshake(conn)
 
           const message = new TextDecoder().decode((await shaker.read()).slice())
 
@@ -103,7 +103,7 @@ describe('test relay', function () {
       const conn = await Alice.connect(Bob.peerId, Charly.peerId)
 
       assert(conn != undefined, `Should be able to connect`)
-      const shaker = handshake<StreamType>(conn)
+      const shaker = handshake(conn)
 
       const msg = '<Hello>, that should be sent and echoed through relayed connection'
       shaker.write(new TextEncoder().encode(msg))
@@ -130,7 +130,7 @@ describe('test relay', function () {
       const conn = await Alice.connect(Bob.peerId, Charly.peerId)
 
       assert(conn != undefined, `Should be able to connect`)
-      const shaker = handshake<StreamType>(conn)
+      const shaker = handshake(conn)
 
       const msg = '<Hello>, that should be sent and echoed through relayed connection'
       shaker.write(new TextEncoder().encode(msg))
