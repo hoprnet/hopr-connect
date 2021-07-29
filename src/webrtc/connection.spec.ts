@@ -61,8 +61,8 @@ describe('test webrtc connection', function () {
   it('sends UPGRADED to the relayed connection', async function () {
     const sendUpgradedSpy = chai.spy()
 
-    const AliceBob = Pair()
-    const BobAlice = Pair()
+    const AliceBob = Pair<StreamType>()
+    const BobAlice = Pair<StreamType>()
 
     const webRTCInstance = new EventEmitter()
 
@@ -77,7 +77,7 @@ describe('test webrtc connection', function () {
       webRTCInstance as any
     )
 
-    const BobShaker = handshake<Uint8Array>({
+    const BobShaker = handshake({
       source: AliceBob.source,
       sink: BobAlice.sink
     })
