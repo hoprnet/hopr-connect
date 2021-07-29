@@ -15,8 +15,6 @@ source "${mydir}/common.sh"
 
 setup "relay-slots"
 
-log "Relay slots test started"
-
 # run alice (client)
 # should be able to send 'test from alice' to bob through relay charly
 # should be ablt to get 'echo: test' back from bob
@@ -168,7 +166,5 @@ expect_file_content "${bob_pipe}" \
 >alice: echo: test from alice
 <ed: test from ed
 >ed: echo: test from ed"
-
-log "Relay slots test succesful"
 
 teardown

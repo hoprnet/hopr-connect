@@ -114,7 +114,7 @@ function setup {
     ed_log="${tmp}/hopr-connect-ed-${test_name}.log"
     ed_port=11094
 
-    log "Setting up new test run"
+    log "Setting up new test run ${test_name}"
     
     free_ports
     remove_logs
