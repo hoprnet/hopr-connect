@@ -31,7 +31,7 @@ export type HoprConnectOptions = {
 /**
  * @class HoprConnect
  */
-class HoprConnect implements Transport<DialOptions, undefined> {
+class HoprConnect implements Transport<DialOptions, any> {
   get [Symbol.toStringTag]() {
     return 'HoprConnect'
   }
