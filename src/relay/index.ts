@@ -68,14 +68,14 @@ class Relay {
         log(`relayed request rejected, already at max capacity (${this.maxRelayedConnections})`)
         shaker.reject(RelayHandshakeMessage.FAIL_RELAY_FULL)
       } else {
-        shaker.negotiate(          
-          connection.remotePeer,          
+        shaker.negotiate(
+          connection.remotePeer,
           (counterparty: PeerId) => this.contactCounterparty(counterparty),
           this.relayState.exists.bind(this.relayState),
           this.relayState.isActive.bind(this.relayState),
           this.relayState.updateExisting.bind(this.relayState),
           this.relayState.createNew.bind(this.relayState),
-          this.__relayFreeTimeout,
+          this.__relayFreeTimeout
         )
       }
     })

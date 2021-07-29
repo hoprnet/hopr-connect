@@ -154,7 +154,7 @@ class WebRTCConnection implements MultiaddrConnection {
     this._webRTCHandshakeFinished = true
     this._webRTCAvailable = false
     this._switchPromise.resolve()
-   
+
     setImmediate(() => {
       this.channel.destroy()
     })
@@ -202,7 +202,7 @@ class WebRTCConnection implements MultiaddrConnection {
     let sourceAttached = false
 
     this.verbose(`FLOW: webrtc sink 1`)
-    
+
     // First: use relayed connection
     await new Promise<void>((resolve) =>
       this.relayConn.sink(
@@ -273,7 +273,7 @@ class WebRTCConnection implements MultiaddrConnection {
                   // Send DONE and migrate to direct WebRTC connection
                   this.verbose(`FLOW: webrtc sink: webrtc finished, handle`)
                   // this.verbose(`FLOW: switched to webrtc, will try to close relayed connection`)
-            
+
                   yield Uint8Array.of(MigrationStatus.DONE)
                   break
                 } else {

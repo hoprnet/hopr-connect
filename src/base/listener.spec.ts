@@ -19,7 +19,6 @@ import { u8aEquals } from '@hoprnet/hopr-utils'
 
 import type { PublicNodesEmitter, PeerStoreType } from '../types'
 
-
 /**
  * Decorated Listener class that emits events after
  * updating list of potential relays

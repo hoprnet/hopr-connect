@@ -71,7 +71,7 @@ describe('test webrtc connection', function () {
       {
         source: BobAlice.source,
         sink: AliceBob.sink,
-        sendUpgraded: sendUpgradedSpy,
+        sendUpgraded: sendUpgradedSpy
       } as any,
       webRTCInstance as any
     )
@@ -84,7 +84,7 @@ describe('test webrtc connection', function () {
     webRTCInstance.emit(`connect`)
 
     assert(u8aEquals((await BobShaker.read()).slice(), Uint8Array.of(MigrationStatus.DONE)))
-  
+
     expect(sendUpgradedSpy).to.have.been.called.once
   })
 
