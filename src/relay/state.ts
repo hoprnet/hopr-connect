@@ -128,7 +128,6 @@ class RelayState {
    */
   private cleanListener(source: PeerId, destination: PeerId): () => void {
     return function (this: RelayState) {
-      console.log(`FLOW: cleaning listener, source: ${source}, dest: ${destination}`)
       const id = RelayState.getId(source, destination)
 
       let found = this.relayedConnections.get(id)
