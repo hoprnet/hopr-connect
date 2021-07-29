@@ -10,7 +10,7 @@ import type { MultiaddrConnection, Upgrader } from 'libp2p-interfaces/src/transp
 import type { HandlerProps } from 'libp2p'
 import libp2p from 'libp2p'
 
-const SECIO = require('libp2p-secio')
+import { NOISE } from 'libp2p-noise'
 const MPLEX = require('libp2p-mplex')
 import UpgraderClass from 'libp2p/src/upgrader'
 
@@ -20,12 +20,12 @@ async function startBootstrapServer(privKey: Uint8Array, port: number): Promise<
   const node = await libp2p.create({
     peerId: await PeerId.createFromPrivKey(privKey),
     addresses: {
-      listen: [new Multiaddr(`/ip4/0.0.0.0/tcp/${port}`)]
+      listen: [`/ip4/0.0.0.0/tcp/${port}`]
     },
     modules: {
       transport: [HoprConnect],
       streamMuxer: [MPLEX],
-      connEncryption: [SECIO]
+      connEncryption: [NOISE]
     }
   })
 
@@ -38,7 +38,7 @@ async function myUpgrader(pId: PeerId): Promise<Upgrader> {
   return new UpgraderClass({
     localPeer: pId,
     metrics: undefined,
-    cryptos: new Map([[SECIO.protocol, SECIO]]),
+    cryptos: new Map([[NOISE.protocol, NOISE]]),
     muxers: new Map([[MPLEX.multicodec, MPLEX]])
   })
 }
@@ -52,7 +52,7 @@ async function startClient(privKey: Uint8Array, port: number, bootstrapAddress: 
     modules: {
       transport: [HoprConnect],
       streamMuxer: [MPLEX],
-      connEncryption: [SECIO]
+      connEncryption: [NOISE]
     },
     config: {
       transport: {

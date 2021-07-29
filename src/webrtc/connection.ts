@@ -253,7 +253,7 @@ class WebRTCConnection implements MultiaddrConnection {
               // 1. Handle stream handover
               // 2. Handle stream messages
               this.verbose(`FLOW: webrtc sink: awaiting promises`)
-              result = (await Promise.race(promises)) as SinkType
+              result = await Promise.race(promises)
               this.verbose(`FLOW: webrtc sink: promise resolved ${resolvedPromiseName}`)
 
               // Source got attached
