@@ -74,8 +74,7 @@ start_node tests/node.ts "${charly_log}" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false \
-  --relayFreeTimeout 2000 # to simulate relay being busy
+  --noWebRTCUpgrade false   
 
 # wait till nodes finish communicating
 wait_for_regex_in_file "${alice_log}" "all tasks executed"
