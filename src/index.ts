@@ -26,8 +26,8 @@ export type HoprConnectOptions = {
   interface?: string
   __noDirectConnections?: boolean
   __noWebRTCUpgrade?: boolean
-  maxRelayedConnections?: number,
-  __relayFreeTimeout?: number,
+  maxRelayedConnections?: number
+  __relayFreeTimeout?: number
 }
 
 /**
@@ -102,7 +102,7 @@ class HoprConnect implements Transport {
       this._webRTCUpgrader,
       opts.__noWebRTCUpgrade,
       opts.maxRelayedConnections,
-      opts.__relayFreeTimeout,
+      opts.__relayFreeTimeout
     )
 
     // Used for testing

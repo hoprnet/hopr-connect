@@ -70,7 +70,7 @@ async function startNode({
   noWebRTCUpgrade,
   pipeFileStream,
   maxRelayedConnections,
-  relayFreeTimeout,
+  relayFreeTimeout
 }: {
   peerId: PeerId
   port: number
@@ -87,7 +87,7 @@ async function startNode({
     __noDirectConnections: noDirectConnections,
     __noWebRTCUpgrade: noWebRTCUpgrade,
     maxRelayedConnections,
-    __relayFreeTimeout: relayFreeTimeout,
+    __relayFreeTimeout: relayFreeTimeout
   }
 
   const node = await libp2p.create({

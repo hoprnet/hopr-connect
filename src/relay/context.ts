@@ -38,14 +38,13 @@ class RelayContext extends EventEmitter {
   private _sourcePromise: Promise<StreamResult> | undefined
   private _sourceSwitched: boolean
 
-
   public source: Stream['source']
   public sink: Stream['sink']
 
   constructor(stream: Stream, private relayFreeTimeout: number = 0) {
     super()
     this._id = u8aToHex(randomBytes(4), false)
-  
+
     this._statusMessagePromise = Defer<void>()
     this._statusMessages = []
     this._stream = stream
@@ -271,12 +270,12 @@ class RelayContext extends EventEmitter {
           } else if (SUFFIX[0] == ConnectionStatusMessages.UPGRADED) {
             // this is an artificial timeout to test the relay slot being properly freed during the integration test
             this.verbose(`FLOW: waiting ${this.relayFreeTimeout}ms before freeing relay`)
-            await new Promise(resolve => setTimeout(resolve, this.relayFreeTimeout));
+            await new Promise((resolve) => setTimeout(resolve, this.relayFreeTimeout))
             this.verbose(`FLOW: freeing relay`)
 
-            this.emit('upgrade') 
+            this.emit('upgrade')
             next()
-            continue            
+            continue
           } else if ((SUFFIX[0] = ConnectionStatusMessages.RESTART)) {
             this.verbose(`RESTART relayed`)
             this.verbose(`FLOW: relay_incoming: RESTART relayed, break`)
