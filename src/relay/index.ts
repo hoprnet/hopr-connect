@@ -5,8 +5,7 @@
 import debug from 'debug'
 
 const DEBUG_PREFIX = 'hopr-connect:relay'
-// @TODO change this once freeing relay slot is working
-const DEFAULT_MAX_RELAYED_CONNECTIONS = Infinity
+const DEFAULT_MAX_RELAYED_CONNECTIONS = 10
 
 const log = debug(DEBUG_PREFIX)
 const error = debug(DEBUG_PREFIX.concat(':error'))
