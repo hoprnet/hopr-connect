@@ -198,7 +198,7 @@ class WebRTCConnection implements MultiaddrConnection {
     type SinkType = Stream['source'] | StreamResult | void
 
     let source: Stream['source'] | undefined
-    let sourcePromise: ReturnType<Stream['source']['next']> | void
+    let sourcePromise: Promise<StreamResult> | void
 
     let sourceAttached = false
 

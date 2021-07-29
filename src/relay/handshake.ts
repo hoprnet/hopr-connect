@@ -1,5 +1,4 @@
-import { Stream, StreamResult, StreamType } from '../types'
-import BL from 'bl'
+import { Stream, StreamType } from '../types'
 import handshake, { Handshake } from 'it-handshake'
 import PeerId from 'peer-id'
 
