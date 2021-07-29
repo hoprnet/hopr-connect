@@ -270,7 +270,9 @@ class RelayContext extends EventEmitter {
           } else if (SUFFIX[0] == ConnectionStatusMessages.UPGRADED) {
             // this is an artificial timeout to test the relay slot being properly freed during the integration test
             this.verbose(`FLOW: waiting ${this.relayFreeTimeout}ms before freeing relay`)
-            await new Promise((resolve) => setTimeout(resolve, this.relayFreeTimeout))
+            if (this.relayFreeTimeout > 0) {
+              await new Promise((resolve) => setTimeout(resolve, this.relayFreeTimeout))
+            }
             this.verbose(`FLOW: freeing relay`)
 
             this.emit('upgrade')
