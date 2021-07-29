@@ -13,7 +13,7 @@ set -Eeuo pipefail
 
 source "${mydir}/common.sh"
 
-setup
+setup "relay-slots"
 
 log "Relay slots test started"
 

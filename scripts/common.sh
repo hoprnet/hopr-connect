@@ -6,26 +6,6 @@ declare tmp="/tmp"
 [[ -d "${tmp}" && -h "${tmp}" ]] && tmp="/var/tmp"
 [[ -d "${tmp}" && -h "${tmp}" ]] && { msg "Neither /tmp or /var/tmp can be used for writing logs"; exit 1; }
 
-
-declare flow_log="${tmp}/hopr-connect-flow.log"
-
-declare alice_log="${tmp}/hopr-connect-alice.log"
-declare alice_pipe="${tmp}/hopr-connect-alice-pipe.log"
-declare alice_port=11090
-
-declare bob_log="${tmp}/hopr-connect-bob.log"
-declare bob_pipe="${tmp}/hopr-connect-bob-pipe.log"
-declare bob_port=11091
-
-declare charly_log="${tmp}/hopr-connect-charly.log"
-declare charly_port=11092
-
-declare dave_log="${tmp}/hopr-connect-dave.log"
-declare dave_port=11093
-
-declare ed_log="${tmp}/hopr-connect-ed.log"
-declare ed_port=11094
-
 function free_ports {
     for port in ${alice_port} ${bob_port} ${charly_port} ${dave_port} ${ed_port}; do
         if lsof -i ":${port}" -s TCP:LISTEN > /dev/null; then
@@ -87,15 +67,6 @@ if [[ "${yarn_version_parsed[0]}" != "2" ]]; then
     exit 1
 fi
 
-log "alice logs -> ${alice_log}"
-log "alice msgs -> ${alice_pipe}"
-log "bob logs -> ${bob_log}"
-log "bob msgs -> ${bob_pipe}"
-log "charly logs -> ${charly_log}"
-log "dave logs -> ${dave_log}"
-log "ed logs -> ${ed_log}"
-log "common flow log -> ${flow_log}"
-
 function remove_logs {
   for file in "${alice_log}" "${bob_log}" "${charly_log}" "${dave_log}" "${ed_log}" "${alice_pipe}" "${bob_pipe}"; do 
     rm -Rf ${file}
@@ -108,14 +79,56 @@ function ensure_ports {
   done
 }
 
+declare flow_log
+declare alice_log
+declare alice_pipe
+declare alice_port
+declare bob_log
+declare bob_pipe
+declare bob_port
+declare charly_log
+declare charly_port
+declare dave_log
+declare dave_port
+declare ed_log
+declare ed_port
+
 function setup {
-  log "Setting up new test run"
+    local test_name="${1}"
+    flow_log="${tmp}/hopr-connect-flow-${test_name}.log"
 
-  free_ports
-  remove_logs
-  ensure_ports
+    alice_log="${tmp}/hopr-connect-alice-${test_name}.log"
+    alice_pipe="${tmp}/hopr-connect-alice-pipe-${test_name}.log"
+    alice_port=11090
 
-  log "Test run setup finished"
+    bob_log="${tmp}/hopr-connect-bob-${test_name}.log"
+    bob_pipe="${tmp}/hopr-connect-bob-pipe-${test_name}.log"
+    bob_port=11091
+
+    charly_log="${tmp}/hopr-connect-charly-${test_name}.log"
+    charly_port=11092
+
+    dave_log="${tmp}/hopr-connect-dave-${test_name}.log"
+    dave_port=11093
+
+    ed_log="${tmp}/hopr-connect-ed-${test_name}.log"
+    ed_port=11094
+
+    log "Setting up new test run"
+    
+    free_ports
+    remove_logs
+    ensure_ports
+
+    log "Test run setup finished"
+    log "alice logs -> ${alice_log}"
+    log "alice msgs -> ${alice_pipe}"
+    log "bob logs -> ${bob_log}"
+    log "bob msgs -> ${bob_pipe}"
+    log "charly logs -> ${charly_log}"
+    log "dave logs -> ${dave_log}"
+    log "ed logs -> ${ed_log}"
+    log "common flow log -> ${flow_log}"
 }
 
 function teardown {
