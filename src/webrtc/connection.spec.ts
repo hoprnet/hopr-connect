@@ -58,42 +58,33 @@ describe('test webrtc connection', function () {
   })
 
   it('sends UPGRADED to the relayed connection', async function () {
+    const sendUpgradedSpy = chai.spy()
+
     const AliceBob = Pair()
     const BobAlice = Pair()
 
-    const sendUpgradedSpy = chai.spy()
+    const webRTCInstance = new EventEmitter()
 
-    const conn = new WebRTCConnection(
+    new WebRTCConnection(
       Bob,
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
         sink: AliceBob.sink,
-        sendUpgraded: sendUpgradedSpy
+        sendUpgraded: sendUpgradedSpy,
       } as any,
-      new EventEmitter() as any
+      webRTCInstance as any
     )
 
-    const AliceShaker = handshake<Uint8Array>(conn)
     const BobShaker = handshake<Uint8Array>({
       source: AliceBob.source,
       sink: BobAlice.sink
     })
-    
-    const ATTEMPTS = 5
 
-    for (let i = 0; i < ATTEMPTS; i++) {
-      const firstMessage = new TextEncoder().encode(`first message`)
-      AliceShaker.write(firstMessage)
+    webRTCInstance.emit(`connect`)
 
-      assert(u8aEquals((await BobShaker.read()).slice(), Uint8Array.from([MigrationStatus.NOT_DONE, ...firstMessage])))
-
-      const secondMessage = new TextEncoder().encode(`second message`)
-      BobShaker.write(Uint8Array.from([MigrationStatus.NOT_DONE, ...secondMessage]))
-
-      assert(u8aEquals((await AliceShaker.read()).slice(), secondMessage))
-    }
-    
+    assert(u8aEquals((await BobShaker.read()).slice(), Uint8Array.of(MigrationStatus.DONE)))
+  
     expect(sendUpgradedSpy).to.have.been.called.once
   })
 
