@@ -107,7 +107,7 @@ start_node tests/node.ts \
         'msg': 'test2 from alice'
       }
     ]" \
-    --port ${charly_port} \ # alice_port is occupied, use the other one
+    --port ${ed_port} \
     --pipeFile "${alice_pipe}" \
     --identityName 'alice' \
     --bootstrapPort ${charly_port} \
