@@ -121,7 +121,11 @@ async function startNode({
   }
 
   node.handle(TEST_PROTOCOL, async (conn: HandlerProps) => {
-    pipe(conn.stream.source, createEchoReplier(await identityNameForConnection(conn.connection), pipeFileStream), conn.stream.sink)
+    pipe(
+      conn.stream.source,
+      createEchoReplier(await identityNameForConnection(conn.connection), pipeFileStream),
+      conn.stream.sink
+    )
   })
 
   await node.start()
