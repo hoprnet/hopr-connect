@@ -13,8 +13,6 @@ const error = Debug('hopr-connect:dialer:error')
 export * from './network'
 export { encodeWithLengthPrefix, decodeWithLengthPrefix } from './lengthPrefix'
 
-type MyStream = StreamType | string
-
 const DEFAULT_DHT_QUERY_TIMEOUT = 2000 // ms
 
 /**
@@ -22,7 +20,7 @@ const DEFAULT_DHT_QUERY_TIMEOUT = 2000 // ms
  * @param source a stream
  * @returns a stream of Uint8Arrays
  */
-export function toU8aStream(source: Stream<MyStream>['source']): Stream['source'] {
+export function toU8aStream(source: Stream<StreamType | string>['source']): Stream['source'] {
   return (async function* () {
     for await (const msg of source) {
       if (typeof msg === 'string') {
