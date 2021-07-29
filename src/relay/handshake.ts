@@ -1,5 +1,3 @@
-/// <reference path="../@types/it-handshake.ts" />
-
 import { Stream, StreamType } from '../types'
 import BL from 'bl'
 import handshake, { Handshake } from 'it-handshake'

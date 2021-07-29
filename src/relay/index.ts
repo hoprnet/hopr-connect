@@ -1,5 +1,3 @@
-/// <reference path="../@types/it-handshake.ts" />
-
 import debug from 'debug'
 
 const DEBUG_PREFIX = 'hopr-connect:relay'

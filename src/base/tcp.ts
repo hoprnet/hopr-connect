@@ -1,5 +1,3 @@
-/// <reference path="../@types/stream-to-it.ts" />
-
 import net from 'net'
 import abortable, { AbortError } from 'abortable-iterator'
 import type { Socket, AddressInfo } from 'net'

@@ -1,3 +1,5 @@
+/// <reference path="../@types/stream-to-it.ts" />
+
 import assert from 'assert'
 import { Listener } from './listener'
 import { Multiaddr } from 'multiaddr'
