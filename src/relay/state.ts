@@ -99,9 +99,9 @@ class RelayState {
    * @param toSource duplex stream to source
    * @param toDestination duplex stream to destination
    */
-  createNew(source: PeerId, destination: PeerId, toSource: Stream, toDestination: Stream, relayFreeTimeout?: number) {
-    const toSourceContext = new RelayContext(toSource, relayFreeTimeout)
-    const toDestinationContext = new RelayContext(toDestination, relayFreeTimeout)
+  createNew(source: PeerId, destination: PeerId, toSource: Stream, toDestination: Stream, __relayFreeTimeout?: number) {
+    const toSourceContext = new RelayContext(toSource, __relayFreeTimeout)
+    const toDestinationContext = new RelayContext(toDestination, __relayFreeTimeout)
 
     toSourceContext.sink(toDestinationContext.source)
     toDestinationContext.sink(toSourceContext.source)
