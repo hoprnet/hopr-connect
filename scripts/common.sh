@@ -120,7 +120,6 @@ function setup {
     remove_logs
     ensure_ports
 
-    log "Test run setup finished"
     log "alice logs -> ${alice_log}"
     log "alice msgs -> ${alice_pipe}"
     log "bob logs -> ${bob_log}"
@@ -129,6 +128,8 @@ function setup {
     log "dave logs -> ${dave_log}"
     log "ed logs -> ${ed_log}"
     log "common flow log -> ${flow_log}"
+
+    log "Test run setup finished"    
 }
 
 function teardown {
