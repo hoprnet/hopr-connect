@@ -115,6 +115,9 @@ start_node tests/node.ts \
 # wait for the second alice to finish sending
 wait_for_regex_in_file "${ed_log}" "all tasks executed"
 
+# bob should have received RESTART status msg
+wait_for_regex_in_file "${bob_log}" "RESTART received. Ending stream"
+
 expect_file_content "${bob_pipe}" \
 "<alice: test from alice
 >alice: echo: test from alice
