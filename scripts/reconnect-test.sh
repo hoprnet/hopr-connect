@@ -42,7 +42,7 @@ start_node tests/node.ts \
     --bootstrapPort ${charly_port} \
     --bootstrapIdentityName 'charly' \
     --noDirectConnections true \
-    --noWebRTCUpgrade false \
+    --noWebRTCUpgrade true \
     
 # run bob (client)
 # should be able to receive 'test' from alice through charly
@@ -64,7 +64,7 @@ start_node tests/node.ts "${bob_log}"  \
   --bootstrapPort ${charly_port} \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
-  --noWebRTCUpgrade false \  
+  --noWebRTCUpgrade true \  
   
 # run charly
 # should able to serve as a bootstrap
@@ -75,7 +75,6 @@ start_node tests/node.ts "${charly_log}" \
   --identityName 'charly' \
   --noDirectConnections true \
   --noWebRTCUpgrade false \
-  --maxRelayedConnections 1 \
   --relayFreeTimeout 2000 # to simulate relay being busy
 
 # wait till nodes finish communicating
@@ -83,12 +82,12 @@ wait_for_regex_in_file "${alice_log}" "all tasks executed"
 wait_for_regex_in_file "${bob_log}" "all tasks executed"
 
 # kill alice
-free_port ${alice_port}
+#free_port ${alice_port}
 
 # wait a little
 sleep 1
 
-# run alice again
+# run another instance of alice
 start_node tests/node.ts \
     "${alice_log}" \
     "[ 
@@ -108,13 +107,13 @@ start_node tests/node.ts \
         'msg': 'test2 from alice'
       }
     ]" \
-    --port ${alice_port} \
+    --port ${charly_port} \ # alice_port is occupied, use the other one
     --pipeFile "${alice_pipe}" \
     --identityName 'alice' \
     --bootstrapPort ${charly_port} \
     --bootstrapIdentityName 'charly' \
     --noDirectConnections true \
-    --noWebRTCUpgrade false \
+    --noWebRTCUpgrade true \
 
 # wait for the second alice to finish sending
 wait_for_regex_in_file "${alice_log}" "all tasks executed"

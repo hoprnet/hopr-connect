@@ -309,7 +309,7 @@ class WebRTCConnection implements MultiaddrConnection {
 
     if (this._webRTCAvailable) {
       this.verbose(`FLOW: sending UPGRADED to relay`)
-      this.relayConn.sendUpgraded()
+      // this.relayConn.sendUpgraded()
 
       // WebRTC handshake was successful, now using direct connection
       this._sinkMigrated = true
