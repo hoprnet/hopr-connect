@@ -89,7 +89,7 @@ sleep 1
 
 # run another instance of alice
 start_node tests/node.ts \
-    "${alice_log}" \
+    "${ed_log}" \
     "[ 
       {
         'cmd': 'wait',
@@ -116,7 +116,7 @@ start_node tests/node.ts \
     --noWebRTCUpgrade true \
 
 # wait for the second alice to finish sending
-wait_for_regex_in_file "${alice_log}" "all tasks executed"
+wait_for_regex_in_file "${ed_log}" "all tasks executed"
 
 expect_file_content "${bob_pipe}" \
 "<alice: test from alice
