@@ -1,4 +1,4 @@
-import { Stream, StreamType } from '../types'
+import { Stream, StreamResult, StreamType } from '../types'
 import BL from 'bl'
 import handshake, { Handshake } from 'it-handshake'
 import PeerId from 'peer-id'
@@ -280,7 +280,7 @@ class RelayHandshake {
    * @returns a duplex stream with the initiator
    */
   async handle(source: PeerId): Promise<HandleResponse> {
-    let chunk: Uint8Array | BL | undefined
+    let chunk: StreamType | undefined
     try {
       chunk = await this.shaker.read()
     } catch (err) {
