@@ -7,7 +7,7 @@ import { Multiaddr } from 'multiaddr'
 import { u8aEquals } from '@hoprnet/hopr-utils'
 import PeerId from 'peer-id'
 import assert from 'assert'
-import { EventEmitter } from 'events'
+import type { EventEmitter } from 'events'
 
 describe('test TCP connection', function () {
   it('should test TCPConnection against Node.js APIs', async function () {
