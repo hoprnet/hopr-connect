@@ -1,5 +1,5 @@
 import { createServer } from 'net'
-import type { AddressInfo, Socket as TCPSocket, Server } from 'net'
+import type { AddressInfo, Socket as TCPSocket, Server as TCPServer } from 'net'
 import { createSocket } from 'dgram'
 import type { RemoteInfo, Socket as UDPSocket } from 'dgram'
 
@@ -76,7 +76,7 @@ type Address = { port: number; address: string }
 
 class Listener extends EventEmitter implements InterfaceListener {
   private __connections: MultiaddrConnection[]
-  private tcpSocket: Server
+  private tcpSocket: TCPServer
   private udpSocket: UDPSocket
 
   private state: State
