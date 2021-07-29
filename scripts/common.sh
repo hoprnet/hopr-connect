@@ -6,11 +6,16 @@ declare tmp="/tmp"
 [[ -d "${tmp}" && -h "${tmp}" ]] && tmp="/var/tmp"
 [[ -d "${tmp}" && -h "${tmp}" ]] && { msg "Neither /tmp or /var/tmp can be used for writing logs"; exit 1; }
 
+function free_port {
+    local port="${1}"
+    if lsof -i ":${port}" -s TCP:LISTEN > /dev/null; then
+        lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {} 
+    fi
+}
+
 function free_ports {
     for port in ${alice_port} ${bob_port} ${charly_port} ${dave_port} ${ed_port}; do
-        if lsof -i ":${port}" -s TCP:LISTEN > /dev/null; then
-          lsof -i ":${port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {} 
-        fi
+        free_port ${port}    
     done
 }
 
