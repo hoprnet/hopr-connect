@@ -303,13 +303,12 @@ class WebRTCConnection implements MultiaddrConnection {
         )
       )
     )
-    this.verbose(`FLOW: sending UPGRADED to relay`)
-    this.relayConn.sendUpgraded()
-
     // Either stream is finished or WebRTC is available
 
     if (this._webRTCAvailable) {
-      this.verbose(`FLOW: webrtc available, next sink`)
+      this.verbose(`FLOW: sending UPGRADED to relay`)
+      this.relayConn.sendUpgraded()
+      
       // WebRTC handshake was successful, now using direct connection
       this._sinkMigrated = true
       if (this._sourceMigrated) {
