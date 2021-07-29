@@ -89,7 +89,7 @@ class HoprConnect implements Transport<DialOptions, undefined> {
     this.discovery = new Discovery()
 
     this.relay = new Relay(
-      (peer: PeerId, protocol: string, options: { timeout: number } | { signal: AbortSignal }) =>
+      (peer: PeerId, protocol: string, options: { timeout: number } | DialOptions) =>
         dialHelper(opts.libp2p, peer, protocol, options as any) as any,
       opts.libp2p.dialer,
       opts.libp2p.connectionManager,

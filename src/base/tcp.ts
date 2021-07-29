@@ -37,7 +37,7 @@ class TCPConnection implements MultiaddrConnection {
     close?: number
   }
 
-  constructor(public remoteAddr: Multiaddr, self: PeerId, public conn: Socket, options?: { signal: AbortSignal }) {
+  constructor(public remoteAddr: Multiaddr, self: PeerId, public conn: Socket, options?: DialOptions) {
     this.localAddr = Multiaddr.fromNodeAddress(nodeToMultiaddr(this.conn.address() as AddressInfo), 'tcp').encapsulate(
       `/p2p/${self.toB58String()}`
     )

@@ -4,13 +4,12 @@ import { createSocket } from 'dgram'
 import type { RemoteInfo, Socket as UDPSocket } from 'dgram'
 
 import { once, EventEmitter } from 'events'
-import { PeerStoreType, PublicNodesEmitter } from '../types'
+import { PeerStoreType, PublicNodesEmitter, DialOptions } from '../types'
 import Debug from 'debug'
 import { green, red } from 'chalk'
 import { NetworkInterfaceInfo, networkInterfaces } from 'os'
 
 import AbortController from 'abort-controller'
-import type { AbortSignal } from 'abort-controller'
 import { CODE_P2P, CODE_IP4, CODE_IP6, CODE_TCP, CODE_UDP, RELAY_CONTACT_TIMEOUT } from '../constants'
 import type { Connection } from 'libp2p'
 import type {
@@ -652,7 +651,7 @@ class Listener extends EventEmitter implements InterfaceListener {
     return usableInterfaces[0].address
   }
 
-  private async connectToRelay(relay: Multiaddr, opts?: { signal: AbortSignal }): Promise<number> {
+  private async connectToRelay(relay: Multiaddr, opts?: DialOptions): Promise<number> {
     let conn: Connection | undefined
     let maConn: TCPConnection | undefined
 

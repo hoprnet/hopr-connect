@@ -37,7 +37,7 @@ class Relay {
     private dialHelper: (
       peer: PeerId,
       protocol: string,
-      opts: { timeout: number } | { signal: AbortSignal }
+      opts: { timeout: number } | DialOptions
     ) => Promise<HandlerProps | undefined>,
     private dialer: Dialer,
     private connectionManager: ConnectionManager,
