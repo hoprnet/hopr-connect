@@ -515,7 +515,14 @@ class Listener extends EventEmitter implements InterfaceListener {
     this.tcpSocket.close()
 
     // Node.js bug workaround: ocassionally on macOS close is not emitted and callback is not called
-    return Promise.race([promise, new Promise<void>(resolve => setTimeout(() => { resolve() }, SOCKET_CLOSE_TIMEOUT ))])
+    return Promise.race([
+      promise,
+      new Promise<void>((resolve) =>
+        setTimeout(() => {
+          resolve()
+        }, SOCKET_CLOSE_TIMEOUT)
+      )
+    ])
   }
 
   /**
