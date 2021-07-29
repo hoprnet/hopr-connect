@@ -81,9 +81,6 @@ start_node tests/node.ts "${charly_log}" \
 wait_for_regex_in_file "${alice_log}" "all tasks executed"
 wait_for_regex_in_file "${bob_log}" "all tasks executed"
 
-# kill alice
-#free_port ${alice_port}
-
 # wait a little
 sleep 1
 
