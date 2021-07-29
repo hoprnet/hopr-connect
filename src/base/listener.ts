@@ -32,6 +32,7 @@ const verbose = Debug('hopr-connect:verbose:listener')
 
 // @TODO to be adjusted
 const MAX_RELAYS_PER_NODE = 7
+const SOCKET_CLOSE_TIMEOUT = 500
 
 /**
  * Attempts to close the given maConn. If a failure occurs, it will be logged.
@@ -517,7 +518,15 @@ class Listener extends EventEmitter implements InterfaceListener {
 
     this.tcpSocket.close()
 
-    return promise
+    // Node.js bug workaround: ocassionally on macOS close is not emitted and callback is not called
+    return Promise.race([
+      promise,
+      new Promise<void>((resolve) =>
+        setTimeout(() => {
+          resolve()
+        }, SOCKET_CLOSE_TIMEOUT)
+      )
+    ])
   }
 
   /**

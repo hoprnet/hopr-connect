@@ -71,7 +71,8 @@ async function startNode({
   noDirectConnections,
   noWebRTCUpgrade,
   pipeFileStream,
-  maxRelayedConnections
+  maxRelayedConnections,
+  relayFreeTimeout
 }: {
   peerId: PeerId
   port: number
@@ -80,13 +81,15 @@ async function startNode({
   noWebRTCUpgrade: boolean
   pipeFileStream?: WriteStream
   maxRelayedConnections?: number
+  relayFreeTimeout?: number
 }) {
   console.log(`starting node, bootstrap address ${bootstrapAddress}`)
   const connectOpts: HoprConnectOptions = {
     initialNodes: bootstrapAddress ? [bootstrapAddress] : [],
     __noDirectConnections: noDirectConnections,
     __noWebRTCUpgrade: noWebRTCUpgrade,
-    maxRelayedConnections
+    maxRelayedConnections,
+    __relayFreeTimeout: relayFreeTimeout
   }
 
   const node = await libp2p.create({
@@ -262,6 +265,9 @@ async function main() {
     .option('maxRelayedConnections', {
       type: 'number'
     })
+    .option('relayFreeTimeout', {
+      type: 'number'
+    })
     .coerce({
       script: (input) => JSON.parse(input.replace(/'/g, '"'))
     })
@@ -291,7 +297,8 @@ async function main() {
     noDirectConnections: argv.noDirectConnections,
     noWebRTCUpgrade: argv.noWebRTCUpgrade,
     pipeFileStream,
-    maxRelayedConnections: argv.maxRelayedConnections
+    maxRelayedConnections: argv.maxRelayedConnections,
+    relayFreeTimeout: argv.relayFreeTimeout
   })
 
   await executeCommands({ node, cmds: argv.script, pipeFileStream })

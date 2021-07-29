@@ -13,6 +13,10 @@ import pushable from 'it-pushable'
 import { EventEmitter } from 'events'
 import assert from 'assert'
 import { StreamType } from '../types'
+import chai, { expect } from 'chai'
+import spies from 'chai-spies'
+
+chai.use(spies)
 
 // const Alice = privKeyToPeerId(stringToU8a(`0xf8860ccb336f4aad751f55765b4adbefc538f8560c21eed6fbc9940d0584eeca`))
 const Bob = privKeyToPeerId(stringToU8a(`0xf8860ccb336f4aad751f55765b4adbefc538f8560c21eed6fbc9940d0584eeca`))
@@ -27,7 +31,8 @@ describe('test webrtc connection', function () {
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
-        sink: AliceBob.sink
+        sink: AliceBob.sink,
+        sendUpgraded: () => {}
       } as any,
       new EventEmitter() as any
     )
@@ -53,6 +58,37 @@ describe('test webrtc connection', function () {
     }
   })
 
+  it('sends UPGRADED to the relayed connection', async function () {
+    const sendUpgradedSpy = chai.spy()
+
+    const AliceBob = Pair()
+    const BobAlice = Pair()
+
+    const webRTCInstance = new EventEmitter()
+
+    new WebRTCConnection(
+      Bob,
+      { connections: new Map() } as any,
+      {
+        source: BobAlice.source,
+        sink: AliceBob.sink,
+        sendUpgraded: sendUpgradedSpy
+      } as any,
+      webRTCInstance as any
+    )
+
+    const BobShaker = handshake<Uint8Array>({
+      source: AliceBob.source,
+      sink: BobAlice.sink
+    })
+
+    webRTCInstance.emit(`connect`)
+
+    assert(u8aEquals((await BobShaker.read()).slice(), Uint8Array.of(MigrationStatus.DONE)))
+
+    expect(sendUpgradedSpy).to.have.been.called.once
+  })
+
   it('send DONE after webRTC connect event', async function () {
     const AliceBob = Pair<StreamType>()
     const BobAlice = Pair<StreamType>()
@@ -64,7 +100,8 @@ describe('test webrtc connection', function () {
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
-        sink: AliceBob.sink
+        sink: AliceBob.sink,
+        sendUpgraded: () => {}
       } as any,
       webRTCInstance as any
     )
@@ -129,7 +166,8 @@ describe('test webrtc connection', function () {
       { connections: new Map() } as any,
       {
         source: BobAlice.source,
-        sink: AliceBob.sink
+        sink: AliceBob.sink,
+        sendUpgraded: () => {}
       } as any,
       webRTCInstance as any
     )
@@ -188,7 +226,8 @@ describe('test webrtc connection', function () {
       {
         source: BobAlice.source,
         sink: AliceBob.sink,
-        remoteAddr: new Multiaddr(`/p2p/${Bob.toB58String()}`)
+        remoteAddr: new Multiaddr(`/p2p/${Bob.toB58String()}`),
+        sendUpgraded: () => {}
       } as any,
       webRTCInstance as any
     )
