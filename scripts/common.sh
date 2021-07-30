@@ -97,7 +97,7 @@ function setup {
     local test_name="${1}"
     flow_log="${tmp}/hopr-connect-${test_name}-flow.log"
 
-    alice_log="${tmp}/hopr-connect-${test_name}-alice-${test_name}.log"
+    alice_log="${tmp}/hopr-connect-${test_name}-alice.log"
     alice_pipe="${tmp}/hopr-connect-${test_name}-alice-pipe.log"
     alice_port=11090
 
