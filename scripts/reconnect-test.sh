@@ -117,6 +117,7 @@ wait_for_regex_in_file "${ed_log}" "all tasks executed"
 # bob should have received RESTART status msg
 wait_for_regex_in_file "${bob_log}" "RESTART received. Ending stream"
 
+# bob should have received both messages from alice1 and alice2
 expect_file_content "${bob_pipe}" \
 "<alice: test from alice
 >alice: echo: test from alice
