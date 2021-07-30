@@ -95,23 +95,23 @@ declare ed_port
 
 function setup {
     local test_name="${1}"
-    flow_log="${tmp}/hopr-connect-flow-${test_name}.log"
+    flow_log="${tmp}/hopr-connect-${test_name}-flow.log"
 
-    alice_log="${tmp}/hopr-connect-alice-${test_name}.log"
-    alice_pipe="${tmp}/hopr-connect-alice-pipe-${test_name}.log"
+    alice_log="${tmp}/hopr-connect-${test_name}-alice-${test_name}.log"
+    alice_pipe="${tmp}/hopr-connect-${test_name}-alice-pipe.log"
     alice_port=11090
 
-    bob_log="${tmp}/hopr-connect-bob-${test_name}.log"
-    bob_pipe="${tmp}/hopr-connect-bob-pipe-${test_name}.log"
+    bob_log="${tmp}/hopr-connect-${test_name}-bob.log"
+    bob_pipe="${tmp}/hopr-connect-${test_name}-bob-pipe.log"
     bob_port=11091
 
-    charly_log="${tmp}/hopr-connect-charly-${test_name}.log"
+    charly_log="${tmp}/hopr-connect-${test_name}-charly.log"
     charly_port=11092
 
-    dave_log="${tmp}/hopr-connect-dave-${test_name}.log"
+    dave_log="${tmp}/hopr-connect-${test_name}-dave.log"
     dave_port=11093
 
-    ed_log="${tmp}/hopr-connect-ed-${test_name}.log"
+    ed_log="${tmp}/hopr-connect-${test_name}-ed.log"
     ed_port=11094
 
     log "Setting up new test run ${test_name}"
