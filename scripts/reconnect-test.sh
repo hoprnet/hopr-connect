@@ -85,7 +85,7 @@ sleep 1
 
 # run another instance of alice
 start_node tests/node.ts \
-    "${ed_log}" \
+    "${alice2_log}" \
     "[ 
       {
         'cmd': 'wait',
@@ -103,8 +103,8 @@ start_node tests/node.ts \
         'msg': 'test2 from alice'
       }
     ]" \
-    --port ${ed_port} \
-    --pipeFile "${alice_pipe}" \
+    --port ${alice2_port} \
+    --pipeFile "${alice2_pipe}" \
     --identityName 'alice' \
     --bootstrapPort ${charly_port} \
     --bootstrapIdentityName 'charly' \
@@ -112,7 +112,7 @@ start_node tests/node.ts \
     --noWebRTCUpgrade true \
 
 # wait for the second alice to finish sending
-wait_for_regex_in_file "${ed_log}" "all tasks executed"
+wait_for_regex_in_file "${alice2_log}" "all tasks executed"
 
 # bob should have received RESTART status msg
 wait_for_regex_in_file "${bob_log}" "RESTART received. Ending stream"
