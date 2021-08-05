@@ -13,5 +13,4 @@ lib
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
-!.yarn/build-state.yml
 .pnp.*
