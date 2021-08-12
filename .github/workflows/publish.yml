@@ -26,12 +26,12 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install    
+          echo running
+      # - name: Build
+      #   run: |
+      #     yarn build
 
-      - name: Build
-        run: |
-          yarn build
-
-      - name: Publish to NPM
-        run: |
-          yarn config set npmAuthToken ${{ secrets.NPM_TOKEN }}
-          yarn npm publish
+      # - name: Publish to NPM
+      #   run: |
+      #     yarn config set npmAuthToken ${{ secrets.NPM_TOKEN }}
+      #     yarn npm publish
