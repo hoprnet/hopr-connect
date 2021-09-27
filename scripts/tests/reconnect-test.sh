@@ -86,7 +86,7 @@ start_node tests/node.ts "${charly_log}" \
   --noWebRTCUpgrade false   
 
 # wait till nodes finish communicating
-wait_for_regex_in_file "${alice_log}" "all tasks executed"
+wait_for_regex_in_file "${alice_log}" "all tasks executed. exit code 0"
 
 # Bob should receive a message from Alice and send it back
 expect_file_content "${bob_pipe}" \
@@ -130,9 +130,9 @@ start_node tests/node.ts \
     --noWebRTCUpgrade true \
 
 # Wait until tasks are done
-wait_for_regex_in_file "${alice2_log}" "all tasks executed"
-wait_for_regex_in_file "${bob_log}" "all tasks executed"
-wait_for_regex_in_file "${charly_log}" "all tasks executed"
+wait_for_regex_in_file "${alice2_log}" "all tasks executed. exit code 0"
+wait_for_regex_in_file "${bob_log}" "all tasks executed. exit code 0"
+wait_for_regex_in_file "${charly_log}" "all tasks executed. exit code 0"
 
 # bob should have received RESTART status msg
 wait_for_regex_in_file "${bob_log}" "RESTART received. Ending stream"

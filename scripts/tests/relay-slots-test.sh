@@ -65,6 +65,10 @@ start_node tests/node.ts "${bob_log}"  \
         'cmd': 'dial',
         'targetIdentityName': 'charly',
         'targetPort': ${charly_port}
+      },
+      {
+        'cmd': 'wait',
+        'waitForSecs': 8
       }      
     ]" \
   --port ${bob_port} \
@@ -79,7 +83,12 @@ start_node tests/node.ts "${bob_log}"  \
 # should able to serve as a bootstrap
 # should be able to relay 1 connection at a time
 start_node tests/node.ts "${charly_log}" \
-  "[]" \
+  "[
+    {
+        'cmd': 'wait',
+        'waitForSecs': 10
+      }
+  ]" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \
@@ -140,10 +149,10 @@ start_node tests/node.ts "${ed_log}" \
   --noWebRTCUpgrade false
 
 # wait till nodes finish communicating
-wait_for_regex_in_file "${alice_log}" "all tasks executed"
-wait_for_regex_in_file "${bob_log}" "all tasks executed"
-wait_for_regex_in_file "${charly_log}" "all tasks executed"
-wait_for_regex_in_file "${ed_log}" "all tasks executed"
+wait_for_regex_in_file "${alice_log}" "all tasks executed. exit code 0"
+wait_for_regex_in_file "${bob_log}" "all tasks executed. exit code 0"
+wait_for_regex_in_file "${charly_log}" "all tasks executed. exit code 0"
+wait_for_regex_in_file "${ed_log}" "all tasks executed. exit code 0"
 
 # dave should have failed to complete
 wait_for_regex_in_file "${dave_log}" "Answer was: <FAIL_RELAY_FULL>"
