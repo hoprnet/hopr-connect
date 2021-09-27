@@ -56,6 +56,10 @@ start_node tests/node.ts "${bob_log}"  \
         'cmd': 'dial',
         'targetIdentityName': 'charly',
         'targetPort': ${charly_port}
+      },
+      {
+        'cmd': 'wait',
+        'waitForSecs': 15
       }      
     ]" \
   --port ${bob_port} \
@@ -65,12 +69,17 @@ start_node tests/node.ts "${bob_log}"  \
   --bootstrapIdentityName 'charly' \
   --noDirectConnections true \
   --noWebRTCUpgrade true \  
-  
+
 # run charly
 # should able to serve as a bootstrap
 # should be able to relay 1 connection at a time
 start_node tests/node.ts "${charly_log}" \
-  "[]" \
+  "[
+    {
+        'cmd': 'wait',
+        'waitForSecs': 15
+      }
+  ]" \
   --port ${charly_port} \
   --identityName 'charly' \
   --noDirectConnections true \
@@ -78,7 +87,16 @@ start_node tests/node.ts "${charly_log}" \
 
 # wait till nodes finish communicating
 wait_for_regex_in_file "${alice_log}" "all tasks executed"
-wait_for_regex_in_file "${bob_log}" "all tasks executed"
+
+# Bob should receive a message from Alice and send it back
+expect_file_content "${bob_pipe}" \
+"<alice: test from alice
+>alice: echo: test from alice"
+
+# Alice should send a message and get the reply from Bob
+expect_file_content "${alice_pipe}" \
+">bob: test from alice
+<bob: echo: test from alice"
 
 # wait a little
 sleep 1
@@ -111,17 +129,24 @@ start_node tests/node.ts \
     --noDirectConnections true \
     --noWebRTCUpgrade true \
 
-# wait for the second alice to finish sending
+# Wait until tasks are done
 wait_for_regex_in_file "${alice2_log}" "all tasks executed"
+wait_for_regex_in_file "${bob_log}" "all tasks executed"
+wait_for_regex_in_file "${charly_log}" "all tasks executed"
 
 # bob should have received RESTART status msg
 wait_for_regex_in_file "${bob_log}" "RESTART received. Ending stream"
 
-# bob should have received both messages from alice1 and alice2
+# Bob should receive a message from Alice and send it back
 expect_file_content "${bob_pipe}" \
 "<alice: test from alice
 >alice: echo: test from alice
 <alice: test2 from alice
 >alice: echo: test2 from alice"
+
+# Alice should send a message and get the reply from Bob
+expect_file_content "${alice2_pipe}" \
+">bob: test2 from alice
+<bob: echo: test2 from alice"
 
 teardown
