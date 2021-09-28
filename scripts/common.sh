@@ -37,7 +37,7 @@ function start_node {
     declare rest_args=${@:4}
 
     DEBUG=hopr-connect*,simple-peer \
-    yarn run spawn-test-node \
+    ./node_modules/.bin/ts-node ${filename} \
         > "${log_file}" \
         ${rest_args} \
         --script "${script}" \
@@ -47,6 +47,21 @@ function start_node {
     log "args: ${rest_args}"
     log "script: "
     log "${script}"
+    echo ${pid}
+}
+
+function start_stupid_node {
+    declare filename=${1}
+    declare log_file=${2}
+    declare rest_args=${@:3}
+
+    ./node_modules/.bin/ts-node ${filename} \
+        > "${log_file}" \
+        ${rest_args} \
+        2>&1 &
+    declare pid=$!
+    log "node started with PID ${pid}"
+    log "args: ${rest_args}"
     echo ${pid}
 }
 

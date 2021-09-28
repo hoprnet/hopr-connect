@@ -20,5 +20,6 @@ usage() {
 }
 
 # here go the tests
-"${mydir}/reconnect-test.sh"
-"${mydir}/relay-slots-test.sh"
+# "${mydir}/tests/reconnect-test.sh"
+# "${mydir}/tests/relay-slots-test.sh"
+"${mydir}/tests/stupid-messages.sh"

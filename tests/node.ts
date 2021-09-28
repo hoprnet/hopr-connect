@@ -148,6 +148,14 @@ type CmdDef =
       msg: string
       targetIdentityName: string
       relayIdentityName: string
+      targetPort: undefined
+    }
+  | {
+      cmd: 'msg'
+      msg: string
+      targetIdentityName: string
+      relayIdentityName: undefined
+      targetPort: string
     }
   | {
       cmd: 'hangup'
@@ -175,26 +183,37 @@ async function executeCommands({
         const targetPeerId = await peerIdForIdentity(cmdDef.targetIdentityName)
         const targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${cmdDef.targetPort}/p2p/${targetPeerId.toB58String()}`)
         console.log(`dialing ${cmdDef.targetIdentityName}`)
-        await node.dial(targetAddress)
+
+        try {
+          await node.dial(targetAddress)
+        } catch (err) {
+          console.log(`dial error`, err)
+          break
+        }
 
         console.log(`dialed`)
         break
       }
       case 'msg': {
         const targetPeerId = await peerIdForIdentity(cmdDef.targetIdentityName)
-        const relayPeerId = await peerIdForIdentity(cmdDef.relayIdentityName)
+
+        let targetAddress: Multiaddr
+        if (cmdDef.relayIdentityName) {
+          const relayPeerId = await peerIdForIdentity(cmdDef.relayIdentityName)
+
+          targetAddress = new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`)
+        } else if (cmdDef.targetPort) {
+          targetAddress = new Multiaddr(`/ip4/127.0.0.1/tcp/${cmdDef.targetPort}/p2p/${targetPeerId.toB58String()}`)
+        } else {
+          throw Error(`Invalid parameters. Either specify a relay peerId or a TCP port`)
+        }
 
         console.log(`msg: dialing ${cmdDef.targetIdentityName} though relay ${cmdDef.relayIdentityName}`)
-        const { stream } = await node
-          .dialProtocol(
-            new Multiaddr(`/p2p/${relayPeerId}/p2p-circuit/p2p/${targetPeerId.toB58String()}`),
-            TEST_PROTOCOL
-          )
-          .catch((err) => {
-            console.log(`dialProtocol to ${cmdDef.targetIdentityName} failed`)
-            console.log(err)
-            process.exit(1)
-          })
+        const { stream } = await node.dialProtocol(targetAddress, TEST_PROTOCOL).catch((err) => {
+          console.log(`dialProtocol to ${cmdDef.targetIdentityName} failed`)
+          console.log(err)
+          process.exit(1)
+        })
 
         console.log(`sending msg '${cmdDef.msg}'`)
 
@@ -220,8 +239,8 @@ async function executeCommands({
   }
 }
 
-async function main() {
-  const argv = yargs(process.argv.slice(2))
+function parseCLIArgs() {
+  return yargs(process.argv.slice(2))
     .option('port', {
       describe: 'node port',
       type: 'number',
@@ -269,6 +288,10 @@ async function main() {
       script: (input) => JSON.parse(input.replace(/'/g, '"'))
     })
     .parseSync()
+}
+
+async function main() {
+  const argv = parseCLIArgs()
 
   let bootstrapAddress: PeerStoreType | undefined
 
@@ -300,12 +323,17 @@ async function main() {
 
   await executeCommands({ node, cmds: argv.script, pipeFileStream })
 
-  console.log(`all tasks executed`)
+  await node.stop()
 }
 
 process.on('unhandledRejection', (error) => {
-  console.log('unhandledRejection', error)
+  console.log(`unhandledRejection`, error)
+  console.trace()
   process.exit(1)
+})
+
+process.on('exit', (code) => {
+  console.log(`all tasks executed. exit code ${code}`)
 })
 
 main()

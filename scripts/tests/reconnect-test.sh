@@ -6,12 +6,12 @@ test "$?" -eq "0" && { echo "This script should only be executed." >&2; exit 1; 
 declare mydir
 mydir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 declare HOPR_LOG_ID="hopr-connect-test"
-source "${mydir}/utils.sh"
+source "${mydir}/../utils.sh"
 
 # exit on errors, undefined variables, ensure errors in pipes are not hidden
 set -Eeuo pipefail
 
-source "${mydir}/common.sh"
+source "${mydir}/../common.sh"
 
 setup "reconnect"
 
