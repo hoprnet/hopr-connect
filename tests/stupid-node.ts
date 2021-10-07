@@ -3,21 +3,19 @@ import { createConnection, createServer } from 'net'
 import { once } from 'events'
 
 function parseCLIArgs() {
-  return (
-    yargs(process.argv.slice(2))
-      .option('port', {
-        describe: 'node port',
-        type: 'number',
-        demandOption: true
-      })
-      .option('badDial', {
-        type: 'boolean'
-      })
-      .option('badAnswer', {
-        type: 'boolean'
-      })
-      .parseSync()
-  )
+  return yargs(process.argv.slice(2))
+    .option('port', {
+      describe: 'node port',
+      type: 'number',
+      demandOption: true
+    })
+    .option('badDial', {
+      type: 'boolean'
+    })
+    .option('badAnswer', {
+      type: 'boolean'
+    })
+    .parseSync()
 }
 
 async function main() {
