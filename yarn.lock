@@ -476,7 +476,7 @@ __metadata:
     multihashes: ^4.0.3
     peer-id: ~0.15.3
     prettier: 2.4.1
-    prettier-plugin-sh: 0.7.1
+    prettier-plugin-sh: 0.8.1
     simple-peer: 9.11
     stream-to-it: ^0.2.4
     ts-node: 10.4.0
@@ -3783,14 +3783,14 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sh@npm:0.7.1":
-  version: 0.7.1
-  resolution: "prettier-plugin-sh@npm:0.7.1"
+"prettier-plugin-sh@npm:0.8.1":
+  version: 0.8.1
+  resolution: "prettier-plugin-sh@npm:0.8.1"
   dependencies:
     mvdan-sh: ^0.5.0
   peerDependencies:
-    prettier: ^2.0.5
-  checksum: 861d66010cef9d354e96b1d980328dbf538f26b5c888697c2f2982e9d5b99db8df00c787293d9017b483acdcf6b226e9c86ea17b612d1c1c995a85255cc3a480
+    prettier: ^2.0.0
+  checksum: a4fb3627ceedd5c6bc29d5339df323805a9ba999bd91e43f216619a316a5d01f12ed79e9f349b2479ccc76b34938b31a01fcb008078ffd58aac27449315cb020
   languageName: node
   linkType: hard
 
