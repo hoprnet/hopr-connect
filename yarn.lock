@@ -470,7 +470,7 @@ __metadata:
     it-pushable: 1.4.2
     libp2p: 0.33.0
     libp2p-interfaces: 1.1.0
-    libp2p-mplex: 0.10.4
+    libp2p-mplex: 0.10.7
     mocha: 9.1.3
     multiaddr: ^10.0.0
     multihashes: ^4.0.3
@@ -949,6 +949,15 @@ __metadata:
   dependencies:
     get-iterator: ^1.0.2
   checksum: 09a2099da84052c42d7511018d231050f3d1818fd9e23e9932b36c852e538c31da7df6f3ae95bff66ba0bcdb5a0f3429871eee2ca0ff24969c9bdb070d368128
+  languageName: node
+  linkType: hard
+
+"abortable-iterator@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "abortable-iterator@npm:3.0.2"
+  dependencies:
+    get-iterator: ^1.0.2
+  checksum: 949ec28b43b08959ee7d1e963f7cec28a2f5ca4e6d3fb0bb1fb5965968e3606fd8465cac6fcff4388ef3d791886881ef4fd6116d399f6c0cd1e17704cde320c4
   languageName: node
   linkType: hard
 
@@ -2804,19 +2813,18 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"libp2p-mplex@npm:0.10.4":
-  version: 0.10.4
-  resolution: "libp2p-mplex@npm:0.10.4"
+"libp2p-mplex@npm:0.10.7":
+  version: 0.10.7
+  resolution: "libp2p-mplex@npm:0.10.7"
   dependencies:
-    abort-controller: ^3.0.0
-    abortable-iterator: ^3.0.0
+    abortable-iterator: ^3.0.2
     bl: ^5.0.0
     debug: ^4.3.1
     err-code: ^3.0.1
     it-pipe: ^1.1.0
     it-pushable: ^1.4.1
     varint: ^6.0.0
-  checksum: d923b2220da4c441b521e7a57776145affb342e2ff3574a0199e4ad2b1a1686145456f5564f38fae55cd90dcc194e0acacff60c2a802b7313061880a8089dd97
+  checksum: f425401f254ca389572b889f4675cfc9cdbe317d97dbb7cc8403901c59813f1dc41a7f141d3945d15a32a537bb31925b826517522ecb9864013e007a3e7d7c06
   languageName: node
   linkType: hard
 

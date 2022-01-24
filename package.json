@@ -60,7 +60,7 @@
     "it-pushable": "1.4.2",
     "libp2p": "0.33.0",
     "libp2p-interfaces": "1.1.0",
-    "libp2p-mplex": "0.10.4",
+    "libp2p-mplex": "0.10.7",
     "mocha": "9.1.3",
     "prettier": "2.4.1",
     "prettier-plugin-sh": "0.7.1",
