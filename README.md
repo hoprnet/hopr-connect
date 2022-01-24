@@ -16,6 +16,8 @@
 
 # hopr-connect
 
+**IMPORTANT:** This repository is un-maintained. The development of `hopr-connect` has been integrated into https://github.com/hoprnet/hoprnet.
+
 **Disclaimer**: support for libp2p test suite is still WIP, see [KNOWN ISSUES](#known-issues)
 
 [![](https://github.com/libp2p/js-libp2p-interfaces/raw/master/src/transport/img/badge.png)](https://github.com/libp2p/js-libp2p-interfaces/tree/master/src/transport)
